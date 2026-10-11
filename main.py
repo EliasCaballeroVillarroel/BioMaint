@@ -1,5 +1,5 @@
 from models.equipos import Equipo
-
+"""
 def mostrar_menu():
     print("== BioMaint ==")
     print(
@@ -99,3 +99,10 @@ while opcion != 3:
         break
     else: 
         print("Ingrese una opción valida")
+"""
+from database.db import get_connection 
+conection = get_connection()
+
+print("Conexión exitosa a la base de datos")
+conection.close()
+
