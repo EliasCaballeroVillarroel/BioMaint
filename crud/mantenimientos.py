@@ -62,6 +62,7 @@ def crear_mantenimiento(
     return mantenimiento
 
 
+
 def actualizar_mantenimiento(
     session: Session,
     mantenimiento_id: int,
@@ -70,17 +71,30 @@ def actualizar_mantenimiento(
     falla_id: int | None = None,
     duracion_mantenimiento: int | None = None,
     descripcion: str | None = None,
-    resultado: str | None = None
+    resultado: str | None = None,
+    campos_enviados: set[str] | None = None
 ) -> Mantenimiento | None:
-    mantenimiento = session.get(
-        Mantenimiento,
-        mantenimiento_id
-    )
+    mantenimiento = session.get(Mantenimiento, mantenimiento_id)
 
     if mantenimiento is None:
         return None
 
-    if falla_id is not None:
+    # Compatibilidad con llamadas anteriores al CRUD.
+    if campos_enviados is None:
+        campos_enviados = {
+            nombre
+            for nombre, valor in {
+                "fecha": fecha,
+                "tipo_mantenimiento": tipo_mantenimiento,
+                "falla_id": falla_id,
+                "duracion_mantenimiento": duracion_mantenimiento,
+                "descripcion": descripcion,
+                "resultado": resultado,
+            }.items()
+            if valor is not None
+        }
+
+    if "falla_id" in campos_enviados and falla_id is not None:
         falla = session.get(Falla, falla_id)
 
         if falla is None:
@@ -91,22 +105,23 @@ def actualizar_mantenimiento(
                 "La falla no pertenece al equipo del mantenimiento."
             )
 
-        mantenimiento.falla_id = falla_id
-
-    if fecha is not None:
-        mantenimiento.fecha = fecha
-
-    if tipo_mantenimiento is not None:
-        mantenimiento.tipo_mantenimiento = tipo_mantenimiento
-
-    if duracion_mantenimiento is not None:
-        mantenimiento.duracion_mantenimiento = duracion_mantenimiento
-
-    if descripcion is not None:
-        mantenimiento.descripcion = descripcion
-
-    if resultado is not None:
-        mantenimiento.resultado = resultado
+    for nombre in campos_enviados:
+        if nombre in {
+            "fecha",
+            "tipo_mantenimiento",
+            "falla_id",
+            "duracion_mantenimiento",
+            "descripcion",
+            "resultado",
+        }:
+            setattr(mantenimiento, nombre, {
+                "fecha": fecha,
+                "tipo_mantenimiento": tipo_mantenimiento,
+                "falla_id": falla_id,
+                "duracion_mantenimiento": duracion_mantenimiento,
+                "descripcion": descripcion,
+                "resultado": resultado,
+            }[nombre])
 
     session.commit()
     session.refresh(mantenimiento)

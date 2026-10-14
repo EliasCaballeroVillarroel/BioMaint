@@ -5,6 +5,33 @@ from sqlalchemy.orm import Session
 from models import Equipo
 
 
+class NumeroSerieDuplicadoError(Exception):
+    pass
+
+
+def verificar_numero_serie(
+    session: Session,
+    numero_serie: str | None,
+    equipo_id_excluir: int | None = None
+) -> None:
+    if numero_serie is None:
+        return
+
+    stmt = select(Equipo).where(
+        Equipo.numero_serie == numero_serie
+    )
+
+    if equipo_id_excluir is not None:
+        stmt = stmt.where(Equipo.id != equipo_id_excluir)
+
+    existe = session.scalar(stmt)
+
+    if existe is not None:
+        raise NumeroSerieDuplicadoError(
+            f"Ya existe un equipo con número de serie '{numero_serie}'"
+        )
+
+
 def listar_equipos(session: Session) -> list[Equipo]:
     stmt = select(Equipo).order_by(Equipo.id)
     return list(session.scalars(stmt).all())
@@ -37,11 +64,18 @@ def crear_equipo(
         numero_serie=numero_serie
     )
 
-    session.add(equipo)
-    session.commit()
-    session.refresh(equipo)
+    try:
+        verificar_numero_serie(session, numero_serie)
+        session.add(equipo)
+        session.commit()
+        session.refresh(equipo)
 
-    return equipo
+        return equipo
+
+    except Exception:
+        session.rollback()
+        raise
+
 
 def actualizar_equipo(
     session: Session,
@@ -59,28 +93,41 @@ def actualizar_equipo(
     if equipo is None:
         return None
 
-    if nombre is not None:
-        equipo.nombre = nombre
+    try:
+        if numero_serie is not None:
+            verificar_numero_serie(
+            session,
+            numero_serie,
+            equipo_id_excluir=equipo_id
+        )
+        if nombre is not None:
+            equipo.nombre = nombre
 
-    if estado_actual is not None:
-        equipo.estado_actual = estado_actual
+        if estado_actual is not None:
+            equipo.estado_actual = estado_actual
 
-    if tipo is not None:
-        equipo.tipo = tipo
+        if tipo is not None:
+            equipo.tipo = tipo
 
-    if modelo is not None:
-        equipo.modelo = modelo
+        if modelo is not None:
+            equipo.modelo = modelo
 
-    if marca is not None:
-        equipo.marca = marca
+        if marca is not None:
+            equipo.marca = marca
 
-    if numero_serie is not None:
-        equipo.numero_serie = numero_serie
+        if numero_serie is not None:
+            equipo.numero_serie = numero_serie
 
-    session.commit()
-    session.refresh(equipo)
+        session.commit()
+        session.refresh(equipo)
 
-    return equipo
+        return equipo
+
+    except Exception:
+        session.rollback()
+        raise
+
+
 
 def eliminar_equipo(
     session: Session,
@@ -92,7 +139,12 @@ def eliminar_equipo(
     if equipo is None:
         return False
 
-    session.delete(equipo)
-    session.commit()
+    try:
+        session.delete(equipo)
+        session.commit()
 
-    return True
+        return True
+
+    except Exception:
+        session.rollback()
+        raise

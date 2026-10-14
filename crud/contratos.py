@@ -63,24 +63,50 @@ def actualizar_contrato(
     empresa: str | None = None,
     fecha_inicio: date | None = None,
     fecha_fin: date | None = None,
-    estado: str | None = None
+    estado: str | None = None,
+    campos_enviados: set[str] | None = None,
 ) -> Contrato | None:
     contrato = session.get(Contrato, contrato_id)
 
     if contrato is None:
         return None
 
+    if campos_enviados is None:
+        campos_enviados = {
+            nombre
+            for nombre, valor in {
+                "tipo_contrato": tipo_contrato,
+                "empresa": empresa,
+                "fecha_inicio": fecha_inicio,
+                "fecha_fin": fecha_fin,
+                "estado": estado,
+            }.items()
+            if valor is not None
+        }
+
+    valores = {
+        "tipo_contrato": tipo_contrato,
+        "empresa": empresa,
+        "fecha_inicio": fecha_inicio,
+        "fecha_fin": fecha_fin,
+        "estado": estado,
+    }
+
+    # Calcular las fechas que tendría el contrato después del cambio.
     nueva_fecha_inicio = (
-        fecha_inicio
-        if fecha_inicio is not None
+        valores["fecha_inicio"]
+        if "fecha_inicio" in campos_enviados
         else contrato.fecha_inicio
     )
 
     nueva_fecha_fin = (
-        fecha_fin
-        if fecha_fin is not None
+        valores["fecha_fin"]
+        if "fecha_fin" in campos_enviados
         else contrato.fecha_fin
     )
+
+    if nueva_fecha_inicio is None:
+        raise ValueError("La fecha de inicio no puede ser null.")
 
     if (
         nueva_fecha_fin is not None
@@ -90,25 +116,18 @@ def actualizar_contrato(
             "La fecha de fin no puede ser anterior a la fecha de inicio."
         )
 
-    if tipo_contrato is not None:
-        contrato.tipo_contrato = tipo_contrato
+    # Aplicar únicamente los campos enviados.
+    for nombre in campos_enviados:
+        if nombre not in valores:
+            raise ValueError(f"Campo no permitido: {nombre}")
 
-    if empresa is not None:
-        contrato.empresa = empresa
-
-    if fecha_inicio is not None:
-        contrato.fecha_inicio = fecha_inicio
-
-    if fecha_fin is not None:
-        contrato.fecha_fin = fecha_fin
-
-    if estado is not None:
-        contrato.estado = estado
+        setattr(contrato, nombre, valores[nombre])
 
     session.commit()
     session.refresh(contrato)
 
     return contrato
+
 
 
 def eliminar_contrato(
