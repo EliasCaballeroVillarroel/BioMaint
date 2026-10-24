@@ -1,5 +1,4 @@
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from schemas.tecnicos import (
@@ -85,14 +84,6 @@ def actualizar(
     if not cambios:
         raise sin_campos_para_actualizar()
 
-    # Nombre y apellido no pueden quedar en null.
-    for campo in ("nombre", "apellido"):
-        if campo in cambios and cambios[campo] is None:
-            raise HTTPException(
-                status_code=422,
-                detail=f"El campo '{campo}' no puede ser nulo."
-            )
-
     return actualizar_tecnico(
         session=session,
         tecnico_id=tecnico_id,
@@ -108,10 +99,7 @@ def eliminar(
     tecnico_id: int,
     session: Session = Depends(obtener_sesion)
 ):
-    try:
-        eliminado = eliminar_tecnico(session, tecnico_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    eliminado = eliminar_tecnico(session, tecnico_id)
 
     if not eliminado:
         raise no_existe("un técnico", tecnico_id)

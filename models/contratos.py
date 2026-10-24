@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from sqlalchemy import Date, ForeignKey, String
+from sqlalchemy import Boolean, Date, ForeignKey, String, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
@@ -32,11 +32,30 @@ class Contrato(Base):
 
     fecha_fin: Mapped[date | None] = mapped_column(Date)
 
-    estado: Mapped[str] = mapped_column(
-        String(30),
-        nullable=False
+    # El estado se calcula a partir de las fechas; solo la
+    # cancelación se registra a mano (POST /contratos/{id}/cancelar).
+    cancelado: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=false()
     )
 
     equipo: Mapped["Equipo"] = relationship(
         back_populates="contratos"
     )
+
+    @property
+    def estado(self) -> str:
+        if self.cancelado:
+            return "Cancelado"
+
+        hoy = date.today()
+
+        if self.fecha_inicio > hoy:
+            return "Pendiente"
+
+        if self.fecha_fin is not None and self.fecha_fin < hoy:
+            return "Vencido"
+
+        return "Activo"

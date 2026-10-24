@@ -1,7 +1,9 @@
-
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from schemas.estados import SeveridadFalla
+from schemas.validadores import rechazar_null, rechazar_fecha_futura
 
 
 class FallaCreate(BaseModel):
@@ -10,7 +12,12 @@ class FallaCreate(BaseModel):
     descripcion_falla: str | None = None
     fecha_falla: date
     fecha_resolucion: date | None = None
-    severidad: str | None = Field(default=None, max_length=50)
+    severidad: SeveridadFalla | None = None
+
+    @field_validator("fecha_falla", "fecha_resolucion")
+    @classmethod
+    def validar_fecha(cls, fecha):
+        return rechazar_fecha_futura(fecha)
 
     @model_validator(mode="after")
     def validar_fechas(self):
@@ -31,19 +38,21 @@ class FallaUpdate(BaseModel):
     descripcion_falla: str | None = None
     fecha_falla: date | None = None
     fecha_resolucion: date | None = None
-    severidad: str | None = Field(default=None, max_length=50)
+    severidad: SeveridadFalla | None = None
 
-    @model_validator(mode="after")
-    def validar_fechas(self):
-        if (
-            self.fecha_falla is not None
-            and self.fecha_resolucion is not None
-            and self.fecha_resolucion < self.fecha_falla
-        ):
-            raise ValueError(
-                "La fecha de resolución no puede ser anterior a la fecha de la falla."
-            )
-        return self
+    # Los campos obligatorios pueden omitirse, pero no enviarse como null.
+    @field_validator("tipo_falla", "fecha_falla")
+    @classmethod
+    def validar_no_nulo(cls, valor):
+        return rechazar_null(valor)
+
+    @field_validator("fecha_falla", "fecha_resolucion")
+    @classmethod
+    def validar_fecha(cls, fecha):
+        return rechazar_fecha_futura(fecha)
+
+    # El orden de las fechas se valida en el CRUD, contra los
+    # valores que ya tiene la falla.
 
 
 class FallaResponse(BaseModel):
@@ -56,3 +65,4 @@ class FallaResponse(BaseModel):
     fecha_falla: date
     fecha_resolucion: date | None = None
     severidad: str | None = None
+    resuelta: bool

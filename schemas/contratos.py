@@ -1,10 +1,11 @@
-
 from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from schemas.validadores import rechazar_null
 
 
+# Calculado a partir de las fechas (ver models/contratos.py).
 EstadoContrato = Literal[
     "Activo",
     "Vencido",
@@ -19,7 +20,6 @@ class ContratoCreate(BaseModel):
     empresa: str | None = Field(default=None, max_length=100)
     fecha_inicio: date
     fecha_fin: date | None = None
-    estado: EstadoContrato
 
     @model_validator(mode="after")
     def validar_fechas(self):
@@ -40,7 +40,15 @@ class ContratoUpdate(BaseModel):
     empresa: str | None = Field(default=None, max_length=100)
     fecha_inicio: date | None = None
     fecha_fin: date | None = None
-    estado: EstadoContrato | None = None
+
+    # Los campos obligatorios pueden omitirse, pero no enviarse como null.
+    @field_validator("tipo_contrato", "fecha_inicio")
+    @classmethod
+    def validar_no_nulo(cls, valor):
+        return rechazar_null(valor)
+
+    # El orden de las fechas se valida en el router, contra los
+    # valores que ya tiene el contrato.
 
 
 class ContratoResponse(BaseModel):
@@ -52,4 +60,4 @@ class ContratoResponse(BaseModel):
     empresa: str | None = None
     fecha_inicio: date
     fecha_fin: date | None = None
-    estado: str
+    estado: EstadoContrato

@@ -1,7 +1,7 @@
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from crud.errores import ConflictoError
 from crud.transacciones import confirmar
 from models import Tecnico
 
@@ -75,7 +75,7 @@ def eliminar_tecnico(
         return False
 
     if tecnico.mantenimientos:
-        raise ValueError(
+        raise ConflictoError(
             "No se puede eliminar el técnico porque tiene mantenimientos asociados."
         )
 

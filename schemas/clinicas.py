@@ -1,5 +1,5 @@
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from schemas.validadores import rechazar_null
 
 
 class ClinicaCreate(BaseModel):
@@ -14,10 +14,8 @@ class ClinicaUpdate(BaseModel):
     # El nombre puede omitirse, pero no enviarse como null.
     @field_validator("nombre")
     @classmethod
-    def rechazar_null(cls, valor):
-        if valor is None:
-            raise ValueError("Este campo no puede ser nulo.")
-        return valor
+    def validar_no_nulo(cls, valor):
+        return rechazar_null(valor)
 
 
 class ClinicaResponse(BaseModel):

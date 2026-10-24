@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from models import Clinica
 from crud.ubicaciones import (
     listar_ubicaciones,
     obtener_ubicacion,
@@ -58,17 +57,6 @@ def crear(
     datos: UbicacionCreate,
     session: Session = Depends(obtener_sesion),
 ):
-    clinica = session.get(Clinica, datos.clinica_id)
-
-    if clinica is None:
-        raise no_existe("una clínica", datos.clinica_id)
-
-    if not clinica.activa:
-        raise HTTPException(
-            status_code=409,
-            detail="No se pueden crear ubicaciones en una clínica dada de baja.",
-        )
-
     return crear_ubicacion(
         session,
         clinica_id=datos.clinica_id,
@@ -93,26 +81,11 @@ def actualizar(
     if not cambios:
         raise sin_campos_para_actualizar()
 
-    if "clinica_id" in cambios and cambios["clinica_id"] is not None:
-        clinica = session.get(Clinica, cambios["clinica_id"])
-
-        if clinica is None:
-            raise no_existe("una clínica", cambios["clinica_id"])
-
-        if not clinica.activa:
-            raise HTTPException(
-                status_code=409,
-                detail="No se puede mover una ubicación a una clínica dada de baja.",
-            )
-
-    try:
-        ubicacion = actualizar_ubicacion(
-            session,
-            ubicacion_id,
-            **cambios,
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    ubicacion = actualizar_ubicacion(
+        session,
+        ubicacion_id,
+        **cambios,
+    )
 
     if ubicacion is None:
         raise no_existe("una ubicación", ubicacion_id)
@@ -125,10 +98,7 @@ def eliminar(
     ubicacion_id: int,
     session: Session = Depends(obtener_sesion),
 ):
-    try:
-        eliminada = eliminar_ubicacion(session, ubicacion_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    eliminada = eliminar_ubicacion(session, ubicacion_id)
 
     if not eliminada:
         raise no_existe("una ubicación", ubicacion_id)

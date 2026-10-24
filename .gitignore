@@ -1,8 +1,9 @@
-.env    
+.env
 venv/
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Configuración local de Claude Code (no se versiona)
 .claude/

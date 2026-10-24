@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from crud.clinicas import (
     listar_clinicas,
@@ -70,14 +70,11 @@ def actualizar(
     if not cambios:
         raise sin_campos_para_actualizar()
 
-    try:
-        clinica = actualizar_clinica(
-            session,
-            clinica_id,
-            **cambios,
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    clinica = actualizar_clinica(
+        session,
+        clinica_id,
+        **cambios,
+    )
 
     if clinica is None:
         raise no_existe("una clínica", clinica_id)
@@ -90,10 +87,7 @@ def eliminar(
     clinica_id: int,
     session: Session = Depends(obtener_sesion),
 ):
-    try:
-        eliminada = eliminar_clinica(session, clinica_id)
-    except ValueError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    eliminada = eliminar_clinica(session, clinica_id)
 
     if not eliminada:
         raise no_existe("una clínica", clinica_id)

@@ -15,6 +15,7 @@ from models import (
     Falla,
     Mantenimiento,
     Contrato,
+    Tecnico,
     mantenimiento_tecnicos,
 )
 
@@ -127,6 +128,44 @@ def ubicacion_prueba():
 
 
 @pytest.fixture
+def equipo_prueba(cliente, ubicacion_prueba):
+    # Equipo activo en la ubicación temporal; se limpia junto con ella.
+    respuesta = cliente.post("/equipos", json={
+        "nombre": "Equipo de prueba",
+        "ubicacion_id": ubicacion_prueba,
+        "estado_actual": "activo",
+    })
+    assert respuesta.status_code == 201
+    return respuesta.json()
+
+
+@pytest.fixture
+def crear_tecnico_api(cliente):
+    # Crea técnicos por la API; al final borra sus asignaciones y a ellos.
+    tecnico_ids = []
+
+    def crear(**datos):
+        datos.setdefault("nombre", "Tecnico")
+        datos.setdefault("apellido", "De Prueba")
+        respuesta = cliente.post("/tecnicos", json=datos)
+        assert respuesta.status_code == 201
+        tecnico_ids.append(respuesta.json()["id"])
+        return respuesta.json()
+
+    yield crear
+
+    if tecnico_ids:
+        with SesionPruebas() as session:
+            session.execute(
+                delete(mantenimiento_tecnicos).where(
+                    mantenimiento_tecnicos.c.tecnico_id.in_(tecnico_ids)
+                )
+            )
+            session.execute(delete(Tecnico).where(Tecnico.id.in_(tecnico_ids)))
+            session.commit()
+
+
+@pytest.fixture
 def crear_clinica_api(cliente):
     # Crea clínicas mediante la API y recuerda sus IDs para limpiarlas,
     # junto con las ubicaciones y equipos que el test les agregue.
@@ -184,6 +223,7 @@ def base_vacia(cliente):
         try:
             # Vaciar en orden seguro por claves foráneas.
             session.execute(delete(mantenimiento_tecnicos))
+            session.execute(delete(Tecnico))
             session.execute(delete(Mantenimiento))
             session.execute(delete(Falla))
             session.execute(delete(Contrato))

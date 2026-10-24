@@ -51,3 +51,12 @@ class Mantenimiento(Base):
     secondary="mantenimiento_tecnicos",
     back_populates="mantenimientos"
     )
+
+    @property
+    def finalizado(self) -> bool:
+        # Un mantenimiento con resultado cargado ya ocurrió: es historial.
+        return bool(self.resultado and self.resultado.strip())
+
+    @property
+    def tecnico_ids(self) -> list[int]:
+        return sorted(tecnico.id for tecnico in self.tecnicos)

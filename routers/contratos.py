@@ -1,9 +1,8 @@
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
+
 from database.dependencies import obtener_sesion
 from routers.errores import no_existe, sin_campos_para_actualizar
-from models import Equipo
 from schemas.contratos import (
     ContratoCreate,
     ContratoUpdate,
@@ -15,8 +14,8 @@ from crud.contratos import (
     crear_contrato,
     actualizar_contrato,
     eliminar_contrato,
+    cancelar_contrato,
     listar_contratos_equipo,
-
 )
 
 
@@ -58,11 +57,6 @@ def crear(
     datos: ContratoCreate,
     session: Session = Depends(obtener_sesion)
 ):
-    equipo = session.get(Equipo, datos.equipo_id)
-
-    if equipo is None:
-        raise no_existe("un equipo", datos.equipo_id)
-
     return crear_contrato(
         session=session,
         equipo_id=datos.equipo_id,
@@ -70,7 +64,6 @@ def crear(
         empresa=datos.empresa,
         fecha_inicio=datos.fecha_inicio,
         fecha_fin=datos.fecha_fin,
-        estado=datos.estado,
     )
 
 
@@ -83,50 +76,23 @@ def actualizar(
     datos: ContratoUpdate,
     session: Session = Depends(obtener_sesion)
 ):
-    contrato = obtener_contrato(session, contrato_id)
-
-    if contrato is None:
-        raise no_existe("un contrato", contrato_id)
-
     cambios = datos.model_dump(exclude_unset=True)
 
     if not cambios:
         raise sin_campos_para_actualizar()
 
-    # Comprobar las fechas resultantes, no solo las enviadas.
-    fecha_inicio_final = cambios.get(
-        "fecha_inicio", contrato.fecha_inicio
+    contrato = actualizar_contrato(
+        session=session,
+        contrato_id=contrato_id,
+        **cambios,
+        # Así un null enviado (por ejemplo fecha_fin) se aplica.
+        campos_enviados=set(cambios.keys()),
     )
-    fecha_fin_final = cambios.get(
-        "fecha_fin", contrato.fecha_fin
-    )
 
-    if fecha_inicio_final is None:
-        raise HTTPException(
-            status_code=422,
-            detail="La fecha de inicio no puede ser nula."
-        )
+    if contrato is None:
+        raise no_existe("un contrato", contrato_id)
 
-    if (
-        fecha_fin_final is not None
-        and fecha_fin_final < fecha_inicio_final
-    ):
-        raise HTTPException(
-            status_code=422,
-            detail="La fecha de fin no puede ser anterior a la fecha de inicio."
-        )
-
-    try:
-        return actualizar_contrato(
-            session=session,
-            contrato_id=contrato_id,
-            **cambios,
-        )
-    except ValueError as error:
-        raise HTTPException(
-            status_code=422,
-            detail=str(error)
-        ) from error
+    return contrato
 
 
 @router.delete(
@@ -137,12 +103,26 @@ def eliminar(
     contrato_id: int,
     session: Session = Depends(obtener_sesion)
 ):
-    eliminado = eliminar_contrato(session, contrato_id)
-
-    if not eliminado:
+    if not eliminar_contrato(session, contrato_id):
         raise no_existe("un contrato", contrato_id)
 
     return None
+
+
+@router.post(
+    "/contratos/{contrato_id}/cancelar",
+    response_model=ContratoResponse
+)
+def cancelar(
+    contrato_id: int,
+    session: Session = Depends(obtener_sesion)
+):
+    contrato = cancelar_contrato(session, contrato_id)
+
+    if contrato is None:
+        raise no_existe("un contrato", contrato_id)
+
+    return contrato
 
 
 @router.get(

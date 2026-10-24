@@ -1,5 +1,5 @@
-
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from schemas.validadores import rechazar_null
 
 
 class UbicacionCreate(BaseModel):
@@ -18,6 +18,12 @@ class UbicacionUpdate(BaseModel):
     sector: str | None = Field(default=None, max_length=100)
     piso: str | None = Field(default=None, max_length=20)
     sala: str | None = Field(default=None, max_length=50)
+
+    # La clínica puede omitirse, pero no enviarse como null.
+    @field_validator("clinica_id")
+    @classmethod
+    def validar_no_nulo(cls, valor):
+        return rechazar_null(valor)
 
 
 class UbicacionResponse(BaseModel):

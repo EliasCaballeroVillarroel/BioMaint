@@ -1,9 +1,9 @@
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from crud.errores import ConflictoError, NoEncontradoError
 from crud.transacciones import confirmar
-from models import Ubicacion
+from models import Clinica, Ubicacion
 
 
 def listar_ubicaciones(
@@ -25,6 +25,20 @@ def obtener_ubicacion(
     return session.get(Ubicacion, ubicacion_id)
 
 
+def verificar_clinica_activa(
+    session: Session,
+    clinica_id: int,
+    mensaje_inactiva: str
+) -> None:
+    clinica = session.get(Clinica, clinica_id)
+
+    if clinica is None:
+        raise NoEncontradoError("una clínica", clinica_id)
+
+    if not clinica.activa:
+        raise ConflictoError(mensaje_inactiva)
+
+
 def crear_ubicacion(
     session: Session,
     clinica_id: int,
@@ -33,6 +47,12 @@ def crear_ubicacion(
     piso: str | None = None,
     sala: str | None = None
 ) -> Ubicacion:
+    verificar_clinica_activa(
+        session,
+        clinica_id,
+        "No se pueden crear ubicaciones en una clínica dada de baja."
+    )
+
     ubicacion = Ubicacion(
         clinica_id=clinica_id,
         servicio=servicio,
@@ -65,11 +85,16 @@ def actualizar_ubicacion(
 
     # Se reactiva solo junto con su clínica (POST /clinicas/{id}/reactivar).
     if not ubicacion.activa:
-        raise ValueError(
+        raise ConflictoError(
             "No se puede modificar una ubicación dada de baja."
         )
 
     if clinica_id is not None:
+        verificar_clinica_activa(
+            session,
+            clinica_id,
+            "No se puede mover una ubicación a una clínica dada de baja."
+        )
         ubicacion.clinica_id = clinica_id
 
     if servicio is not None:
@@ -100,7 +125,7 @@ def eliminar_ubicacion(
         return False
 
     if ubicacion.equipos:
-        raise ValueError(
+        raise ConflictoError(
             "No se puede eliminar la ubicación porque tiene equipos asociados."
         )
 

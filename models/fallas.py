@@ -41,3 +41,8 @@ class Falla(Base):
     mantenimientos: Mapped[list["Mantenimiento"]] = relationship(
     back_populates="falla"
     )
+
+    @property
+    def resuelta(self) -> bool:
+        # Una falla está abierta hasta que se registra su resolución.
+        return self.fecha_resolucion is not None

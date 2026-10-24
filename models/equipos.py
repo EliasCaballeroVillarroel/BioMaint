@@ -42,6 +42,10 @@ class Equipo(Base): #Creamos una clase que va representar a equipos
     )
 
     @property
+    def dado_de_baja(self) -> bool:
+        return self.estado_actual == "dado_de_baja"
+
+    @property
     def ubicacion_activa(self) -> bool:
         # Marca calculada: False si la clínica del equipo está dada de baja.
         # El equipo sigue operativo y se puede trasladar a otra ubicación.

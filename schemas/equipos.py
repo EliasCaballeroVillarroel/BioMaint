@@ -1,13 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from schemas.estados import EstadoEquipo
-
-
-def rechazar_dado_de_baja(estado):
-    if estado == EstadoEquipo.DADO_DE_BAJA:
-        raise ValueError(
-            "Para dar de baja un equipo usá POST /equipos/{id}/baja."
-        )
-    return estado
+from schemas.validadores import rechazar_null, rechazar_dado_de_baja
 
 
 class EquipoCreate(BaseModel):
@@ -44,10 +37,8 @@ class EquipoUpdate(BaseModel):
     # (El validador solo corre si el campo viene en el body.)
     @field_validator("nombre", "ubicacion_id", "estado_actual")
     @classmethod
-    def rechazar_null(cls, valor):
-        if valor is None:
-            raise ValueError("Este campo no puede ser nulo.")
-        return valor
+    def validar_no_nulo(cls, valor):
+        return rechazar_null(valor)
 
     @field_validator("estado_actual")
     @classmethod

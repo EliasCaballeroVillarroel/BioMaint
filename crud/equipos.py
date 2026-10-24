@@ -1,12 +1,27 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from crud.errores import ConflictoError, NoEncontradoError
 from crud.transacciones import confirmar
-from models import Equipo
+from models import Equipo, Ubicacion
 
 
-class NumeroSerieDuplicadoError(Exception):
+class NumeroSerieDuplicadoError(ConflictoError):
     pass
+
+
+def verificar_ubicacion_activa(
+    session: Session,
+    ubicacion_id: int,
+    mensaje_inactiva: str
+) -> None:
+    ubicacion = session.get(Ubicacion, ubicacion_id)
+
+    if ubicacion is None:
+        raise NoEncontradoError("una ubicación", ubicacion_id)
+
+    if not ubicacion.activa:
+        raise ConflictoError(mensaje_inactiva)
 
 
 def verificar_numero_serie(
@@ -60,6 +75,11 @@ def crear_equipo(
     marca: str | None = None,
     numero_serie: str | None = None
 ) -> Equipo:
+    verificar_ubicacion_activa(
+        session,
+        ubicacion_id,
+        "No se pueden crear equipos en una ubicación dada de baja."
+    )
     verificar_numero_serie(session, numero_serie)
 
     equipo = Equipo(
@@ -95,9 +115,18 @@ def actualizar_equipo(
     if equipo is None:
         return None
 
-    if equipo.estado_actual == "dado_de_baja":
-        raise ValueError(
+    if equipo.dado_de_baja:
+        raise ConflictoError(
             "No se puede modificar un equipo que está dado de baja."
+        )
+
+    # Solo se valida un traslado real: un equipo en una ubicación
+    # dada de baja puede seguir actualizándose sin moverse.
+    if ubicacion_id is not None and ubicacion_id != equipo.ubicacion_id:
+        verificar_ubicacion_activa(
+            session,
+            ubicacion_id,
+            "No se puede mover un equipo a una ubicación dada de baja."
         )
 
     verificar_numero_serie(
@@ -143,8 +172,8 @@ def eliminar_equipo(
         return False
 
     # Un equipo dado de baja se conserva por su historial.
-    if equipo.estado_actual == "dado_de_baja":
-        raise ValueError(
+    if equipo.dado_de_baja:
+        raise ConflictoError(
             "No se puede eliminar un equipo dado de baja: "
             "se conserva por su historial."
         )
@@ -164,7 +193,7 @@ def dar_de_baja_equipo(
     if equipo is None:
         return None
 
-    if equipo.estado_actual == "dado_de_baja":
+    if equipo.dado_de_baja:
         return equipo
 
     equipo.estado_actual = "dado_de_baja"

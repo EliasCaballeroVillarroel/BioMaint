@@ -2,7 +2,7 @@
 Crea las bases de datos del proyecto y carga datos de ejemplo.
 
 - DB_NAME (desarrollo): se crean las tablas aplicando las migraciones de
-  Alembic (database/migraciones) y se cargan los datos de "SQL ejemplos/SQL/llenado_tablas_biomaint.sql",
+  Alembic (database/migraciones) y se cargan los datos de "database/semillas/llenado_tablas_biomaint.sql",
   normalizando los valores a los que acepta la API. También se cargan
   contratos de ejemplo usando el CRUD del proyecto.
 - biomaint_test: solo se crea vacía; conftest.py la migra y
@@ -22,7 +22,7 @@ from sqlalchemy import create_engine, func, inspect, select, text
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker
 
-from crud.contratos import crear_contrato
+from crud.contratos import cancelar_contrato, crear_contrato
 from database.migrar import REVISION_INICIAL, migrar
 from models import Clinica, Equipo
 
@@ -30,8 +30,7 @@ load_dotenv()
 
 BASE_PRUEBAS = "biomaint_test"
 ARCHIVO_LLENADO = (
-    Path(__file__).resolve().parent.parent
-    / "SQL ejemplos" / "SQL" / "llenado_tablas_biomaint.sql"
+    Path(__file__).resolve().parent / "semillas" / "llenado_tablas_biomaint.sql"
 )
 
 # Valores del backup -> valores que usa la API (schemas/).
@@ -46,17 +45,23 @@ NORMALIZACIONES = [
     "WHERE tipo_mantenimiento = 'PREDICTIVO'",
     "UPDATE mantenimientos SET tipo_mantenimiento = 'Correctivo' "
     "WHERE tipo_mantenimiento = 'CORRECTIVO'",
+    # Mismas sentencias que la migración 9dde320bbb20 (se copian en vez
+    # de importarse: una migración es una foto fija y no debe cambiar).
+    "UPDATE fallas SET severidad = LOWER(TRIM(severidad)) "
+    "WHERE severidad IS NOT NULL",
+    "UPDATE fallas SET severidad = 'critica' WHERE severidad = 'crítica'",
 ]
 
-# (numero_serie del equipo, tipo, empresa, inicio, fin, estado)
+# (numero_serie del equipo, tipo, empresa, inicio, fin, cancelado).
+# El estado se calcula con las fechas: hoy hay activos, vencidos y uno pendiente.
 CONTRATOS_EJEMPLO = [
-    ("SN-RES-001", "Mantenimiento integral", "Siemens", date(2024, 1, 1), date(2026, 12, 31), "Activo"),
-    ("SN-TC-001", "Mantenimiento integral", "Siemens", date(2023, 5, 1), date(2025, 4, 30), "Vencido"),
-    ("SN-TC-001", "Mantenimiento integral", "Siemens", date(2025, 5, 1), date(2027, 4, 30), "Activo"),
-    ("SN-HEM-001", "Full risk", "Siemens", date(2024, 7, 1), date(2027, 6, 30), "Activo"),
-    ("SN-HEM-002", "Preventivo", "Medrad", date(2024, 1, 1), date(2024, 12, 31), "Vencido"),
-    ("SN-RAD-002", "Preventivo", "GE HealthCare", date(2025, 3, 1), date(2026, 2, 28), "Cancelado"),
-    ("SN-RAD-003", "Mantenimiento integral", "Siemens", date(2026, 11, 1), None, "Pendiente"),
+    ("SN-RES-001", "Mantenimiento integral", "Siemens", date(2024, 1, 1), date(2026, 12, 31), False),
+    ("SN-TC-001", "Mantenimiento integral", "Siemens", date(2023, 5, 1), date(2025, 4, 30), False),
+    ("SN-TC-001", "Mantenimiento integral", "Siemens", date(2025, 5, 1), date(2027, 4, 30), False),
+    ("SN-HEM-001", "Full risk", "Siemens", date(2024, 7, 1), date(2027, 6, 30), False),
+    ("SN-HEM-002", "Preventivo", "Medrad", date(2024, 1, 1), date(2024, 12, 31), False),
+    ("SN-RAD-002", "Preventivo", "GE HealthCare", date(2025, 3, 1), date(2026, 2, 28), True),
+    ("SN-RAD-003", "Mantenimiento integral", "Siemens", date(2026, 11, 1), None, False),
 ]
 
 
@@ -127,19 +132,20 @@ def cargar_datos_desarrollo(nombre: str) -> None:
             session.rollback()
             raise
 
-        for numero_serie, tipo, empresa, inicio, fin, estado in CONTRATOS_EJEMPLO:
+        for numero_serie, tipo, empresa, inicio, fin, cancelado in CONTRATOS_EJEMPLO:
             equipo = session.scalar(
                 select(Equipo).where(Equipo.numero_serie == numero_serie)
             )
-            crear_contrato(
+            contrato = crear_contrato(
                 session,
                 equipo_id=equipo.id,
                 tipo_contrato=tipo,
                 fecha_inicio=inicio,
-                estado=estado,
                 empresa=empresa,
                 fecha_fin=fin,
             )
+            if cancelado:
+                cancelar_contrato(session, contrato.id)
 
     engine.dispose()
 

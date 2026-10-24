@@ -1,7 +1,7 @@
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from crud.errores import ConflictoError
 from crud.transacciones import confirmar
 from models import Clinica
 
@@ -55,7 +55,7 @@ def actualizar_clinica(
         return None
 
     if not clinica.activa:
-        raise ValueError(
+        raise ConflictoError(
             "No se puede modificar una clínica dada de baja."
         )
 
@@ -82,7 +82,7 @@ def eliminar_clinica(
 
     # Con ubicaciones solo se permite la baja lógica.
     if clinica.ubicaciones:
-        raise ValueError(
+        raise ConflictoError(
             "No se puede eliminar la clínica porque tiene "
             f"{len(clinica.ubicaciones)} ubicaciones asociadas. "
             f"Para darla de baja usá POST /clinicas/{clinica_id}/baja."
