@@ -3,3 +3,7 @@ venv/
 .venv/
 __pycache__/
 *.pyc
+
+# Configuración local de Claude Code (no se versiona)
+.claude/
+CLAUDE.md

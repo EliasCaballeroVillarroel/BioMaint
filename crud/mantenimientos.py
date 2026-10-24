@@ -4,6 +4,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from crud.transacciones import confirmar
 from models import Mantenimiento, Equipo, Falla, Tecnico
 
 
@@ -32,13 +33,13 @@ def crear_mantenimiento(
     resultado: str | None = None
 ) -> Mantenimiento:
     if session.get(Equipo, equipo_id) is None:
-        raise ValueError(f"No existe el equipo con ID {equipo_id}")
+        raise ValueError(f"No existe un equipo con ID {equipo_id}.")
 
     if falla_id is not None:
         falla = session.get(Falla, falla_id)
 
         if falla is None:
-            raise ValueError(f"No existe la falla con ID {falla_id}")
+            raise ValueError(f"No existe una falla con ID {falla_id}.")
 
         if falla.equipo_id != equipo_id:
             raise ValueError(
@@ -56,11 +57,11 @@ def crear_mantenimiento(
     )
 
     session.add(mantenimiento)
-    session.commit()
+
+    confirmar(session)
+
     session.refresh(mantenimiento)
-
     return mantenimiento
-
 
 
 def actualizar_mantenimiento(
@@ -74,7 +75,10 @@ def actualizar_mantenimiento(
     resultado: str | None = None,
     campos_enviados: set[str] | None = None
 ) -> Mantenimiento | None:
-    mantenimiento = session.get(Mantenimiento, mantenimiento_id)
+    mantenimiento = session.get(
+        Mantenimiento,
+        mantenimiento_id
+    )
 
     if mantenimiento is None:
         return None
@@ -98,34 +102,29 @@ def actualizar_mantenimiento(
         falla = session.get(Falla, falla_id)
 
         if falla is None:
-            raise ValueError(f"No existe la falla con ID {falla_id}")
+            raise ValueError(f"No existe una falla con ID {falla_id}.")
 
         if falla.equipo_id != mantenimiento.equipo_id:
             raise ValueError(
                 "La falla no pertenece al equipo del mantenimiento."
             )
 
+    valores = {
+        "fecha": fecha,
+        "tipo_mantenimiento": tipo_mantenimiento,
+        "falla_id": falla_id,
+        "duracion_mantenimiento": duracion_mantenimiento,
+        "descripcion": descripcion,
+        "resultado": resultado,
+    }
+
     for nombre in campos_enviados:
-        if nombre in {
-            "fecha",
-            "tipo_mantenimiento",
-            "falla_id",
-            "duracion_mantenimiento",
-            "descripcion",
-            "resultado",
-        }:
-            setattr(mantenimiento, nombre, {
-                "fecha": fecha,
-                "tipo_mantenimiento": tipo_mantenimiento,
-                "falla_id": falla_id,
-                "duracion_mantenimiento": duracion_mantenimiento,
-                "descripcion": descripcion,
-                "resultado": resultado,
-            }[nombre])
+        if nombre in valores:
+            setattr(mantenimiento, nombre, valores[nombre])
 
-    session.commit()
+    confirmar(session)
+
     session.refresh(mantenimiento)
-
     return mantenimiento
 
 
@@ -142,7 +141,8 @@ def eliminar_mantenimiento(
         return False
 
     session.delete(mantenimiento)
-    session.commit()
+
+    confirmar(session)
 
     return True
 
@@ -175,19 +175,21 @@ def asignar_tecnico(
 
     if mantenimiento is None:
         raise ValueError(
-            f"No existe el mantenimiento con ID {mantenimiento_id}"
+            f"No existe un mantenimiento con ID {mantenimiento_id}."
         )
 
     tecnico = session.get(Tecnico, tecnico_id)
 
     if tecnico is None:
         raise ValueError(
-            f"No existe el técnico con ID {tecnico_id}"
+            f"No existe un técnico con ID {tecnico_id}."
         )
 
     if tecnico not in mantenimiento.tecnicos:
         mantenimiento.tecnicos.append(tecnico)
-        session.commit()
+
+        confirmar(session)
+
         session.refresh(mantenimiento)
 
     return mantenimiento

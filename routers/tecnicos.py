@@ -1,10 +1,7 @@
 
-from collections.abc import Generator
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from database.db import SessionLocal
 from schemas.tecnicos import (
     TecnicoCreate,
     TecnicoUpdate,
@@ -19,17 +16,11 @@ from crud.tecnicos import (
     eliminar_tecnico,
     listar_mantenimientos_tecnico,
 )
-
+from database.dependencies import obtener_sesion
+from routers.errores import no_existe, sin_campos_para_actualizar
 
 router = APIRouter(tags=["Técnicos"])
 
-
-def obtener_sesion() -> Generator[Session, None, None]:
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
 
 
 @router.get(
@@ -53,10 +44,7 @@ def obtener(
     tecnico = obtener_tecnico(session, tecnico_id)
 
     if tecnico is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El técnico indicado no existe."
-        )
+        raise no_existe("un técnico", tecnico_id)
 
     return tecnico
 
@@ -90,25 +78,19 @@ def actualizar(
     tecnico = obtener_tecnico(session, tecnico_id)
 
     if tecnico is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El técnico indicado no existe."
-        )
+        raise no_existe("un técnico", tecnico_id)
 
     cambios = datos.model_dump(exclude_unset=True)
 
     if not cambios:
-        raise HTTPException(
-            status_code=400,
-            detail="Debés enviar al menos un campo para actualizar."
-        )
+        raise sin_campos_para_actualizar()
 
     # Nombre y apellido no pueden quedar en null.
     for campo in ("nombre", "apellido"):
         if campo in cambios and cambios[campo] is None:
             raise HTTPException(
                 status_code=422,
-                detail=f"El campo '{campo}' no puede ser null."
+                detail=f"El campo '{campo}' no puede ser nulo."
             )
 
     return actualizar_tecnico(
@@ -126,24 +108,13 @@ def eliminar(
     tecnico_id: int,
     session: Session = Depends(obtener_sesion)
 ):
-    tecnico = obtener_tecnico(session, tecnico_id)
+    try:
+        eliminado = eliminar_tecnico(session, tecnico_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    if tecnico is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El técnico indicado no existe."
-        )
-
-    if tecnico.mantenimientos:
-        raise HTTPException(
-            status_code=409,
-            detail=(
-                "No se puede eliminar el técnico porque "
-                "tiene mantenimientos asociados."
-            )
-        )
-
-    eliminar_tecnico(session, tecnico_id)
+    if not eliminado:
+        raise no_existe("un técnico", tecnico_id)
 
     return None
 
@@ -162,9 +133,6 @@ def listar_mantenimientos(
     )
 
     if mantenimientos is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El técnico indicado no existe."
-        )
+        raise no_existe("un técnico", tecnico_id)
 
     return mantenimientos

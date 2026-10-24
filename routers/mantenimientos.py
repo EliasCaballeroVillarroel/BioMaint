@@ -1,10 +1,7 @@
 
-from collections.abc import Generator
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from database.db import SessionLocal
 from models import Equipo, Falla
 from schemas.mantenimientos import (
     MantenimientoCreate,
@@ -20,17 +17,11 @@ from crud.mantenimientos import (
     listar_mantenimientos_equipo,
     asignar_tecnico,
 )
-
+from database.dependencies import obtener_sesion
+from routers.errores import no_existe, sin_campos_para_actualizar
 
 router = APIRouter(tags=["Mantenimientos"])
 
-
-def obtener_sesion() -> Generator[Session, None, None]:
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
 
 
 @router.get(
@@ -54,10 +45,7 @@ def obtener(
     mantenimiento = obtener_mantenimiento(session, mantenimiento_id)
 
     if mantenimiento is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El mantenimiento indicado no existe."
-        )
+        raise no_existe("un mantenimiento", mantenimiento_id)
 
     return mantenimiento
 
@@ -75,10 +63,7 @@ def crear(
     equipo = session.get(Equipo, datos.equipo_id)
 
     if equipo is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El equipo indicado no existe."
-        )
+        raise no_existe("un equipo", datos.equipo_id)
 
     # Si se indicó una falla, verificar que exista
     # y que corresponda al equipo seleccionado.
@@ -86,10 +71,7 @@ def crear(
         falla = session.get(Falla, datos.falla_id)
 
         if falla is None:
-            raise HTTPException(
-                status_code=404,
-                detail="La falla indicada no existe."
-            )
+            raise no_existe("una falla", datos.falla_id)
 
         if falla.equipo_id != datos.equipo_id:
             raise HTTPException(
@@ -121,24 +103,18 @@ def actualizar(
     existente = obtener_mantenimiento(session, mantenimiento_id)
 
     if existente is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El mantenimiento indicado no existe."
-        )
+        raise no_existe("un mantenimiento", mantenimiento_id)
 
     cambios = datos.model_dump(exclude_unset=True)
 
     if not cambios:
-        raise HTTPException(
-            status_code=400,
-            detail="Debés enviar al menos un campo para actualizar."
-        )
+        raise sin_campos_para_actualizar()
 
     # Estos campos son obligatorios en la base de datos.
     if cambios.get("fecha", existente.fecha) is None:
         raise HTTPException(
             status_code=422,
-            detail="La fecha del mantenimiento no puede ser null."
+            detail="La fecha del mantenimiento no puede ser nula."
         )
 
     if cambios.get(
@@ -146,7 +122,7 @@ def actualizar(
     ) is None:
         raise HTTPException(
             status_code=422,
-            detail="El tipo de mantenimiento no puede ser null."
+            detail="El tipo de mantenimiento no puede ser nulo."
         )
 
     falla_id = cambios.get("falla_id", existente.falla_id)
@@ -155,10 +131,7 @@ def actualizar(
         falla = session.get(Falla, falla_id)
 
         if falla is None:
-            raise HTTPException(
-                status_code=404,
-                detail="La falla indicada no existe."
-            )
+            raise no_existe("una falla", falla_id)
 
         if falla.equipo_id != existente.equipo_id:
             raise HTTPException(
@@ -193,10 +166,7 @@ def eliminar(
     eliminado = eliminar_mantenimiento(session, mantenimiento_id)
 
     if not eliminado:
-        raise HTTPException(
-            status_code=404,
-            detail="El mantenimiento indicado no existe."
-        )
+        raise no_existe("un mantenimiento", mantenimiento_id)
 
     return None
 
@@ -212,10 +182,7 @@ def listar_por_equipo(
     mantenimientos = listar_mantenimientos_equipo(session, equipo_id)
 
     if mantenimientos is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El equipo indicado no existe."
-        )
+        raise no_existe("un equipo", equipo_id)
 
     return mantenimientos
 

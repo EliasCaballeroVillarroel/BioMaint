@@ -42,9 +42,9 @@ This is a portfolio and learning project, not a validated clinical or hospital p
 1. Clone this repository.
 2. Create and activate a Python virtual environment.
 3. Install the dependencies listed in `requirements.txt`.
-4. Create a local `.env` file with your MySQL connection settings.
-5. Create the database and configure the schema.
-6. Run the application or individual development scripts.
+4. Create a local `.env` file with your MySQL connection settings (`DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_NAME`).
+5. Create the databases with `python -m database.inicializar_bases`. This creates the development database (`DB_NAME`) with its tables and sample data from `SQL ejemplos/SQL/llenado_tablas_biomaint.sql`, plus an empty `biomaint_test` database for the test suite. It is safe to run again: it skips loading if the development database already has data.
+6. Start the API with `uvicorn main:app --reload` (docs at http://127.0.0.1:8000/docs) or run the tests with `pytest`.
 
 Never commit database credentials or other secrets to the repository.
 

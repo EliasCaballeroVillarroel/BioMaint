@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import String
+from sqlalchemy import Boolean, String, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
@@ -17,6 +17,14 @@ class Clinica(Base):
     )
 
     direccion: Mapped[str | None] = mapped_column(String(200))
+
+    # Baja lógica: una clínica inactiva se conserva en la base.
+    activa: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default=true()
+    )
 
     ubicaciones: Mapped[list["Ubicacion"]] = relationship(
         back_populates="clinica"

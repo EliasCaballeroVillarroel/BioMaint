@@ -4,6 +4,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from crud.transacciones import confirmar
 from models import Contrato, Equipo
 
 
@@ -50,9 +51,10 @@ def crear_contrato(
     )
 
     session.add(contrato)
-    session.commit()
-    session.refresh(contrato)
 
+    confirmar(session)
+
+    session.refresh(contrato)
     return contrato
 
 
@@ -106,7 +108,7 @@ def actualizar_contrato(
     )
 
     if nueva_fecha_inicio is None:
-        raise ValueError("La fecha de inicio no puede ser null.")
+        raise ValueError("La fecha de inicio no puede ser nula.")
 
     if (
         nueva_fecha_fin is not None
@@ -119,15 +121,14 @@ def actualizar_contrato(
     # Aplicar únicamente los campos enviados.
     for nombre in campos_enviados:
         if nombre not in valores:
-            raise ValueError(f"Campo no permitido: {nombre}")
+            raise ValueError(f"Campo no permitido: {nombre}.")
 
         setattr(contrato, nombre, valores[nombre])
 
-    session.commit()
+    confirmar(session)
+
     session.refresh(contrato)
-
     return contrato
-
 
 
 def eliminar_contrato(
@@ -140,7 +141,8 @@ def eliminar_contrato(
         return False
 
     session.delete(contrato)
-    session.commit()
+
+    confirmar(session)
 
     return True
 

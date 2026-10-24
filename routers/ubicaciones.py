@@ -1,10 +1,6 @@
-
-from collections.abc import Generator
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.db import SessionLocal
 from models import Clinica
 from crud.ubicaciones import (
     listar_ubicaciones,
@@ -20,17 +16,10 @@ from schemas.ubicaciones import (
     UbicacionResponse,
 )
 from schemas.equipos import EquipoResponse
-
+from database.dependencies import obtener_sesion
+from routers.errores import no_existe, sin_campos_para_actualizar
 
 router = APIRouter(tags=["Ubicaciones"])
-
-
-def obtener_sesion() -> Generator[Session, None, None]:
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
 
 
 @router.get(
@@ -38,9 +27,10 @@ def obtener_sesion() -> Generator[Session, None, None]:
     response_model=list[UbicacionResponse],
 )
 def listar(
+    incluir_inactivas: bool = False,
     session: Session = Depends(obtener_sesion),
 ):
-    return listar_ubicaciones(session)
+    return listar_ubicaciones(session, incluir_inactivas=incluir_inactivas)
 
 
 @router.get(
@@ -54,10 +44,7 @@ def obtener(
     ubicacion = obtener_ubicacion(session, ubicacion_id)
 
     if ubicacion is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Ubicación no encontrada",
-        )
+        raise no_existe("una ubicación", ubicacion_id)
 
     return ubicacion
 
@@ -74,9 +61,12 @@ def crear(
     clinica = session.get(Clinica, datos.clinica_id)
 
     if clinica is None:
+        raise no_existe("una clínica", datos.clinica_id)
+
+    if not clinica.activa:
         raise HTTPException(
-            status_code=404,
-            detail="La clínica indicada no existe",
+            status_code=409,
+            detail="No se pueden crear ubicaciones en una clínica dada de baja.",
         )
 
     return crear_ubicacion(
@@ -101,31 +91,31 @@ def actualizar(
     cambios = datos.model_dump(exclude_unset=True)
 
     if not cambios:
-        raise HTTPException(
-            status_code=400,
-            detail="Debés enviar al menos un campo para actualizar",
-        )
+        raise sin_campos_para_actualizar()
 
     if "clinica_id" in cambios and cambios["clinica_id"] is not None:
         clinica = session.get(Clinica, cambios["clinica_id"])
 
         if clinica is None:
+            raise no_existe("una clínica", cambios["clinica_id"])
+
+        if not clinica.activa:
             raise HTTPException(
-                status_code=404,
-                detail="La clínica indicada no existe",
+                status_code=409,
+                detail="No se puede mover una ubicación a una clínica dada de baja.",
             )
 
-    ubicacion = actualizar_ubicacion(
-        session,
-        ubicacion_id,
-        **cambios,
-    )
+    try:
+        ubicacion = actualizar_ubicacion(
+            session,
+            ubicacion_id,
+            **cambios,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     if ubicacion is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Ubicación no encontrada",
-        )
+        raise no_existe("una ubicación", ubicacion_id)
 
     return ubicacion
 
@@ -135,26 +125,17 @@ def eliminar(
     ubicacion_id: int,
     session: Session = Depends(obtener_sesion),
 ):
-    ubicacion = obtener_ubicacion(session, ubicacion_id)
+    try:
+        eliminada = eliminar_ubicacion(session, ubicacion_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    if ubicacion is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Ubicación no encontrada",
-        )
+    if not eliminada:
+        raise no_existe("una ubicación", ubicacion_id)
 
-    if ubicacion.equipos:
-        raise HTTPException(
-            status_code=409,
-            detail=(
-                "No se puede eliminar la ubicación porque "
-                "tiene equipos asociados"
-            ),
-        )
-
-    eliminar_ubicacion(session, ubicacion_id)
-
-    return {"mensaje": "Ubicación eliminada correctamente"}
+    return {
+        "mensaje": f"La ubicación con ID {ubicacion_id} fue eliminada correctamente."
+    }
 
 
 @router.get(
@@ -165,12 +146,9 @@ def listar_equipos_de_ubicacion(
     ubicacion_id: int,
     session: Session = Depends(obtener_sesion),
 ):
-    ubicacion = obtener_ubicacion(session, ubicacion_id)
+    equipos = listar_equipos_ubicacion(session, ubicacion_id)
 
-    if ubicacion is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Ubicación no encontrada",
-        )
+    if equipos is None:
+        raise no_existe("una ubicación", ubicacion_id)
 
-    return listar_equipos_ubicacion(session, ubicacion_id)
+    return equipos

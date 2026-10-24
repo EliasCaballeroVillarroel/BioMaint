@@ -1,10 +1,8 @@
 
-from collections.abc import Generator
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.db import SessionLocal
+
 from models import Equipo
 from crud.fallas import (
     listar_fallas,
@@ -19,17 +17,13 @@ from schemas.fallas import (
     FallaUpdate,
     FallaResponse,
 )
+from database.dependencies import obtener_sesion
+from routers.errores import no_existe, sin_campos_para_actualizar
 
 
 router = APIRouter(tags=["Fallas"])
 
 
-def obtener_sesion() -> Generator[Session, None, None]:
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
 
 
 @router.get("/fallas", response_model=list[FallaResponse])
@@ -47,10 +41,7 @@ def obtener(
     falla = obtener_falla(session, falla_id)
 
     if falla is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Falla no encontrada",
-        )
+        raise no_existe("una falla", falla_id)
 
     return falla
 
@@ -67,10 +58,7 @@ def crear(
     equipo = session.get(Equipo, datos.equipo_id)
 
     if equipo is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El equipo indicado no existe",
-        )
+        raise no_existe("un equipo", datos.equipo_id)
 
     return crear_falla(
         session,
@@ -92,18 +80,12 @@ def actualizar(
     falla_existente = obtener_falla(session, falla_id)
 
     if falla_existente is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Falla no encontrada",
-        )
+        raise no_existe("una falla", falla_id)
 
     cambios = datos.model_dump(exclude_unset=True)
 
     if not cambios:
-        raise HTTPException(
-            status_code=400,
-            detail="Debés enviar al menos un campo para actualizar",
-        )
+        raise sin_campos_para_actualizar()
 
     fecha_falla_final = (
         cambios.get("fecha_falla") or falla_existente.fecha_falla
@@ -121,7 +103,7 @@ def actualizar(
             status_code=422,
             detail=(
                 "La fecha de resolución no puede ser anterior "
-                "a la fecha de la falla"
+                "a la fecha de la falla."
             ),
         )
 
@@ -141,26 +123,17 @@ def eliminar(
     falla_id: int,
     session: Session = Depends(obtener_sesion),
 ):
-    falla = obtener_falla(session, falla_id)
+    try:
+        eliminada = eliminar_falla(session, falla_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
-    if falla is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Falla no encontrada",
-        )
+    if not eliminada:
+        raise no_existe("una falla", falla_id)
 
-    if falla.mantenimientos:
-        raise HTTPException(
-            status_code=409,
-            detail=(
-                "No se puede eliminar la falla porque "
-                "tiene mantenimientos asociados"
-            ),
-        )
-
-    eliminar_falla(session, falla_id)
-
-    return {"mensaje": "Falla eliminada correctamente"}
+    return {
+        "mensaje": f"La falla con ID {falla_id} fue eliminada correctamente."
+    }
 
 
 @router.get(
@@ -174,9 +147,6 @@ def listar_fallas_de_equipo(
     fallas = listar_fallas_equipo(session, equipo_id)
 
     if fallas is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El equipo indicado no existe",
-        )
+        raise no_existe("un equipo", equipo_id)
 
     return fallas

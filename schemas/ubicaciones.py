@@ -29,3 +29,4 @@ class UbicacionResponse(BaseModel):
     sector: str | None = None
     piso: str | None = None
     sala: str | None = None
+    activa: bool

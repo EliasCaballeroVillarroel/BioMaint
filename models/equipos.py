@@ -40,3 +40,9 @@ class Equipo(Base): #Creamos una clase que va representar a equipos
     contratos: Mapped[list["Contrato"]] = relationship(
     back_populates="equipo"
     )
+
+    @property
+    def ubicacion_activa(self) -> bool:
+        # Marca calculada: False si la clínica del equipo está dada de baja.
+        # El equipo sigue operativo y se puede trasladar a otra ubicación.
+        return self.ubicacion.activa

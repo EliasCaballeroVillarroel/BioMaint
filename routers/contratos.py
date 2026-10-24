@@ -1,10 +1,8 @@
 
-from collections.abc import Generator
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
-from database.db import SessionLocal
+from database.dependencies import obtener_sesion
+from routers.errores import no_existe, sin_campos_para_actualizar
 from models import Equipo
 from schemas.contratos import (
     ContratoCreate,
@@ -23,14 +21,6 @@ from crud.contratos import (
 
 
 router = APIRouter(tags=["Contratos"])
-
-
-def obtener_sesion() -> Generator[Session, None, None]:
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
 
 
 @router.get(
@@ -54,10 +44,7 @@ def obtener(
     contrato = obtener_contrato(session, contrato_id)
 
     if contrato is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El contrato indicado no existe."
-        )
+        raise no_existe("un contrato", contrato_id)
 
     return contrato
 
@@ -74,10 +61,7 @@ def crear(
     equipo = session.get(Equipo, datos.equipo_id)
 
     if equipo is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El equipo indicado no existe."
-        )
+        raise no_existe("un equipo", datos.equipo_id)
 
     return crear_contrato(
         session=session,
@@ -102,18 +86,12 @@ def actualizar(
     contrato = obtener_contrato(session, contrato_id)
 
     if contrato is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El contrato indicado no existe."
-        )
+        raise no_existe("un contrato", contrato_id)
 
     cambios = datos.model_dump(exclude_unset=True)
 
     if not cambios:
-        raise HTTPException(
-            status_code=400,
-            detail="Debés enviar al menos un campo para actualizar."
-        )
+        raise sin_campos_para_actualizar()
 
     # Comprobar las fechas resultantes, no solo las enviadas.
     fecha_inicio_final = cambios.get(
@@ -126,7 +104,7 @@ def actualizar(
     if fecha_inicio_final is None:
         raise HTTPException(
             status_code=422,
-            detail="La fecha de inicio no puede ser null."
+            detail="La fecha de inicio no puede ser nula."
         )
 
     if (
@@ -162,10 +140,7 @@ def eliminar(
     eliminado = eliminar_contrato(session, contrato_id)
 
     if not eliminado:
-        raise HTTPException(
-            status_code=404,
-            detail="El contrato indicado no existe."
-        )
+        raise no_existe("un contrato", contrato_id)
 
     return None
 
@@ -181,9 +156,6 @@ def listar_por_equipo(
     contratos = listar_contratos_equipo(session, equipo_id)
 
     if contratos is None:
-        raise HTTPException(
-            status_code=404,
-            detail="El equipo indicado no existe."
-        )
+        raise no_existe("un equipo", equipo_id)
 
     return contratos

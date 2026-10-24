@@ -4,6 +4,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from crud.transacciones import confirmar
 from models import Falla
 
 
@@ -38,9 +39,10 @@ def crear_falla(
     )
 
     session.add(falla)
-    session.commit()
-    session.refresh(falla)
 
+    confirmar(session)
+
+    session.refresh(falla)
     return falla
 
 
@@ -73,9 +75,9 @@ def actualizar_falla(
     if severidad is not None:
         falla.severidad = severidad
 
-    session.commit()
-    session.refresh(falla)
+    confirmar(session)
 
+    session.refresh(falla)
     return falla
 
 
@@ -89,10 +91,13 @@ def eliminar_falla(
         return False
 
     if falla.mantenimientos:
-        return False
+        raise ValueError(
+            "No se puede eliminar la falla porque tiene mantenimientos asociados."
+        )
 
     session.delete(falla)
-    session.commit()
+
+    confirmar(session)
 
     return True
 

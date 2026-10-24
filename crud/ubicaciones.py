@@ -2,11 +2,19 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from crud.transacciones import confirmar
 from models import Ubicacion
 
 
-def listar_ubicaciones(session: Session) -> list[Ubicacion]:
+def listar_ubicaciones(
+    session: Session,
+    incluir_inactivas: bool = False
+) -> list[Ubicacion]:
     stmt = select(Ubicacion).order_by(Ubicacion.id)
+
+    if not incluir_inactivas:
+        stmt = stmt.where(Ubicacion.activa.is_(True))
+
     return list(session.scalars(stmt).all())
 
 
@@ -34,9 +42,10 @@ def crear_ubicacion(
     )
 
     session.add(ubicacion)
-    session.commit()
-    session.refresh(ubicacion)
 
+    confirmar(session)
+
+    session.refresh(ubicacion)
     return ubicacion
 
 
@@ -54,6 +63,12 @@ def actualizar_ubicacion(
     if ubicacion is None:
         return None
 
+    # Se reactiva solo junto con su clínica (POST /clinicas/{id}/reactivar).
+    if not ubicacion.activa:
+        raise ValueError(
+            "No se puede modificar una ubicación dada de baja."
+        )
+
     if clinica_id is not None:
         ubicacion.clinica_id = clinica_id
 
@@ -69,11 +84,10 @@ def actualizar_ubicacion(
     if sala is not None:
         ubicacion.sala = sala
 
-    session.commit()
+    confirmar(session)
+
     session.refresh(ubicacion)
-
     return ubicacion
-
 
 
 def eliminar_ubicacion(
@@ -86,13 +100,15 @@ def eliminar_ubicacion(
         return False
 
     if ubicacion.equipos:
-        return False
+        raise ValueError(
+            "No se puede eliminar la ubicación porque tiene equipos asociados."
+        )
 
     session.delete(ubicacion)
-    session.commit()
+
+    confirmar(session)
 
     return True
-
 
 
 def listar_equipos_ubicacion(

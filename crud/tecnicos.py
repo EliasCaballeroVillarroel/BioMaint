@@ -2,6 +2,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from crud.transacciones import confirmar
 from models import Tecnico
 
 
@@ -30,9 +31,10 @@ def crear_tecnico(
     )
 
     session.add(tecnico)
-    session.commit()
-    session.refresh(tecnico)
 
+    confirmar(session)
+
+    session.refresh(tecnico)
     return tecnico
 
 
@@ -57,9 +59,9 @@ def actualizar_tecnico(
     if empresa is not None:
         tecnico.empresa = empresa
 
-    session.commit()
-    session.refresh(tecnico)
+    confirmar(session)
 
+    session.refresh(tecnico)
     return tecnico
 
 
@@ -73,10 +75,13 @@ def eliminar_tecnico(
         return False
 
     if tecnico.mantenimientos:
-        return False
+        raise ValueError(
+            "No se puede eliminar el técnico porque tiene mantenimientos asociados."
+        )
 
     session.delete(tecnico)
-    session.commit()
+
+    confirmar(session)
 
     return True
 

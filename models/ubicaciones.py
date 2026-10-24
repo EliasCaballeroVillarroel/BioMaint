@@ -1,5 +1,5 @@
 from __future__ import annotations
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Boolean, ForeignKey, String, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.base import Base
 
@@ -18,6 +18,14 @@ class Ubicacion(Base):
     sector: Mapped[str | None] = mapped_column(String(100))
     piso: Mapped[str | None] = mapped_column(String(20))
     sala: Mapped[str | None] = mapped_column(String(50))
+
+    # Se inactiva en cascada al dar de baja su clínica.
+    activa: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default=true()
+    )
 
     equipos: Mapped[list["Equipo"]] = relationship(
         back_populates="ubicacion"

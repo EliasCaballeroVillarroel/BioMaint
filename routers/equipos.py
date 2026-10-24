@@ -1,34 +1,26 @@
-from collections.abc import Generator
-from fastapi import APIRouter, Depends, HTTPException, FastAPI, Request
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from fastapi.responses import JSONResponse
-from sqlalchemy.exc import IntegrityError
-from database.db import SessionLocal
+
 from crud.equipos import (
     listar_equipos,
     obtener_equipo,
     crear_equipo,
     actualizar_equipo,
     eliminar_equipo,
+    dar_de_baja_equipo,
     NumeroSerieDuplicadoError,
 )
-from models import Equipo, Ubicacion
+from models import Ubicacion
 from schemas.equipos import (
     EquipoCreate,
     EquipoUpdate,
     EquipoResponse,
 )
+from database.dependencies import obtener_sesion
+from routers.errores import no_existe, sin_campos_para_actualizar
+
 
 router = APIRouter(tags=["Equipos"])
-
-
-def obtener_sesion():
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
-
 
 
 @router.get("/equipos", response_model=list[EquipoResponse])
@@ -36,7 +28,6 @@ def listar_equipos_api(
     session: Session = Depends(obtener_sesion)
 ):
     return listar_equipos(session)
-
 
 
 @router.get("/equipos/{equipo_id}", response_model=EquipoResponse)
@@ -47,12 +38,10 @@ def obtener_equipo_api(
     equipo = obtener_equipo(session, equipo_id)
 
     if equipo is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No existe un equipo con ID {equipo_id}"
-        )
+        raise no_existe("un equipo", equipo_id)
 
     return equipo
+
 
 @router.post(
     "/equipos",
@@ -63,16 +52,17 @@ def crear_equipo_api(
     datos: EquipoCreate,
     session: Session = Depends(obtener_sesion)
 ):
-    # Verificamos que la ubicación exista
     ubicacion = session.get(Ubicacion, datos.ubicacion_id)
 
     if ubicacion is None:
+        raise no_existe("una ubicación", datos.ubicacion_id)
+
+    if not ubicacion.activa:
         raise HTTPException(
-            status_code=404,
-            detail=f"No existe una ubicación con ID {datos.ubicacion_id}"
+            status_code=409,
+            detail="No se pueden crear equipos en una ubicación dada de baja."
         )
 
-    # Creamos el equipo usando el CRUD existente
     try:
         equipo = crear_equipo(
             session,
@@ -85,12 +75,10 @@ def crear_equipo_api(
             numero_serie=datos.numero_serie
         )
     except NumeroSerieDuplicadoError as exc:
-        raise HTTPException(
-            status_code=409,
-            detail=str(exc)
-        ) from exc
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     return equipo
+
 
 @router.put(
     "/equipos/{equipo_id}",
@@ -101,79 +89,74 @@ def actualizar_equipo_api(
     datos: EquipoUpdate,
     session: Session = Depends(obtener_sesion)
 ):
-    cambios = datos.model_dump(exclude_unset=True)
-
-    if "estado_actual" in cambios and cambios["estado_actual"] is not None:
-        cambios["estado_actual"] = cambios["estado_actual"].value
-
-    if not cambios:
-        raise HTTPException(
-            status_code=400,
-            detail="Debes enviar al menos un campo para actualizar"
-        )
-
-    # Si se cambia la ubicación, verificamos que exista
-    if "ubicacion_id" in cambios:
-        ubicacion = session.get(Ubicacion, cambios["ubicacion_id"])
-
-        if ubicacion is None:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No existe una ubicación con ID {cambios['ubicacion_id']}"
-            )
-
-        # El CRUD actual no recibe ubicacion_id.
-        # Por eso la aplicamos directamente al objeto después.
-        nueva_ubicacion_id = cambios.pop("ubicacion_id")
-    else:
-        nueva_ubicacion_id = None
-
-    try:
-        equipo = actualizar_equipo(
-            session,
-            equipo_id,
-            **cambios
-        )
-    except NumeroSerieDuplicadoError as exc:
-        raise HTTPException(
-            status_code=409,
-            detail=str(exc)
-        ) from exc
+    equipo = obtener_equipo(session, equipo_id)
 
     if equipo is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No existe un equipo con ID {equipo_id}"
-        )
+        raise no_existe("un equipo", equipo_id)
 
-    if nueva_ubicacion_id is not None:
-        equipo.ubicacion_id = nueva_ubicacion_id
-        session.commit()
-        session.refresh(equipo)
+    cambios = datos.model_dump(exclude_unset=True)
 
-    return equipo
+    if not cambios:
+        raise sin_campos_para_actualizar()
+
+    # El schema ya rechaza null en estado_actual y ubicacion_id.
+    if "estado_actual" in cambios:
+        cambios["estado_actual"] = cambios["estado_actual"].value
+
+    nueva_ubicacion_id = cambios.get("ubicacion_id")
+
+    # Solo se valida un traslado real: un equipo en una ubicación
+    # dada de baja puede seguir actualizándose sin moverse.
+    if (
+        nueva_ubicacion_id is not None
+        and nueva_ubicacion_id != equipo.ubicacion_id
+    ):
+        ubicacion = session.get(Ubicacion, nueva_ubicacion_id)
+
+        if ubicacion is None:
+            raise no_existe("una ubicación", nueva_ubicacion_id)
+
+        if not ubicacion.activa:
+            raise HTTPException(
+                status_code=409,
+                detail="No se puede mover un equipo a una ubicación dada de baja."
+            )
+
+    try:
+        return actualizar_equipo(session, equipo_id, **cambios)
+    except (NumeroSerieDuplicadoError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
 
 @router.delete("/equipos/{equipo_id}")
 def eliminar_equipo_api(
     equipo_id: int,
     session: Session = Depends(obtener_sesion)
 ):
-    equipo = obtener_equipo(session, equipo_id)
-
-    if equipo is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No existe un equipo con ID {equipo_id}"
-        )
-
-    eliminado = eliminar_equipo(session, equipo_id)
+    try:
+        eliminado = eliminar_equipo(session, equipo_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     if not eliminado:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No existe un equipo con ID {equipo_id}"
-        )
+        raise no_existe("un equipo", equipo_id)
 
     return {
-        "mensaje": f"El equipo con ID {equipo_id} fue eliminado correctamente"
+        "mensaje": f"El equipo con ID {equipo_id} fue eliminado correctamente."
     }
+
+
+@router.post(
+    "/equipos/{equipo_id}/baja",
+    response_model=EquipoResponse,
+)
+def dar_de_baja_equipo_api(
+    equipo_id: int,
+    session: Session = Depends(obtener_sesion),
+):
+    equipo = dar_de_baja_equipo(session, equipo_id)
+
+    if equipo is None:
+        raise no_existe("un equipo", equipo_id)
+
+    return equipo

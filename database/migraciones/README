@@ -1,0 +1,14 @@
+Migraciones de Alembic de BioMaint (base MySQL).
+
+Flujo al cambiar un modelo (models/):
+    alembic revision --autogenerate -m "descripcion del cambio"
+    # revisar el archivo generado en versions/ (no detecta renombres)
+    alembic upgrade head
+
+Otros comandos:
+    alembic current          # versión aplicada en la base de .env
+    alembic check            # falla si hay cambios en modelos sin migración
+    alembic downgrade -1     # revertir la última migración
+
+La URL de conexión sale de .env (database/db.py); alembic.ini no guarda
+credenciales. Los tests migran biomaint_test con database/migrar.py.

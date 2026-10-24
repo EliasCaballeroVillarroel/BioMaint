@@ -19,7 +19,7 @@ class FallaCreate(BaseModel):
             and self.fecha_resolucion < self.fecha_falla
         ):
             raise ValueError(
-                "La fecha de resolución no puede ser anterior a la fecha de la falla"
+                "La fecha de resolución no puede ser anterior a la fecha de la falla."
             )
         return self
 
@@ -41,7 +41,7 @@ class FallaUpdate(BaseModel):
             and self.fecha_resolucion < self.fecha_falla
         ):
             raise ValueError(
-                "La fecha de resolución no puede ser anterior a la fecha de la falla"
+                "La fecha de resolución no puede ser anterior a la fecha de la falla."
             )
         return self
 
