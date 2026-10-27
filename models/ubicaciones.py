@@ -1,11 +1,14 @@
 from __future__ import annotations
-from sqlalchemy import Boolean, ForeignKey, String, true
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from database.base import Base
+
 from typing import TYPE_CHECKING
 
+from sqlalchemy import Boolean, ForeignKey, String, true
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from database.base import Base
+
 if TYPE_CHECKING:
-    from models.clinica import Clinica
+    from models.clinicas import Clinica
     from models.equipos import Equipo
 
 
@@ -26,5 +29,5 @@ class Ubicacion(Base):
         Boolean, nullable=False, default=True, server_default=true()
     )
 
-    equipos: Mapped[list["Equipo"]] = relationship(back_populates="ubicacion")
-    clinica: Mapped["Clinica"] = relationship(back_populates="ubicaciones")
+    equipos: Mapped[list[Equipo]] = relationship(back_populates="ubicacion")
+    clinica: Mapped[Clinica] = relationship(back_populates="ubicaciones")

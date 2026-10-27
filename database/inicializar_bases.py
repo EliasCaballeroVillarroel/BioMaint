@@ -163,6 +163,11 @@ def cargar_datos_desarrollo(nombre: str) -> None:
             equipo = session.scalar(
                 select(Equipo).where(Equipo.numero_serie == numero_serie)
             )
+            if equipo is None:
+                raise RuntimeError(
+                    f"Datos semilla inconsistentes: el contrato referencia el equipo "
+                    f"{numero_serie}, que no existe en EQUIPOS_EJEMPLO."
+                )
             contrato = crear_contrato(
                 session,
                 equipo_id=equipo.id,
@@ -179,6 +184,10 @@ def cargar_datos_desarrollo(nombre: str) -> None:
 
 def main() -> None:
     base_desarrollo = os.getenv("DB_NAME")
+    if base_desarrollo is None:
+        raise RuntimeError(
+            "Falta la variable DB_NAME. Creá un .env a partir de .env.example."
+        )
 
     if base_desarrollo == BASE_PRUEBAS:
         raise RuntimeError("DB_NAME no puede ser la base de pruebas.")

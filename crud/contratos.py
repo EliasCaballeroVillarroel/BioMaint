@@ -94,13 +94,11 @@ def actualizar_contrato(
 
     # Calcular las fechas que tendría el contrato después del cambio.
     nueva_fecha_inicio = (
-        valores["fecha_inicio"]
-        if "fecha_inicio" in campos_enviados
-        else contrato.fecha_inicio
+        fecha_inicio if "fecha_inicio" in campos_enviados else contrato.fecha_inicio
     )
 
     nueva_fecha_fin = (
-        valores["fecha_fin"] if "fecha_fin" in campos_enviados else contrato.fecha_fin
+        fecha_fin if "fecha_fin" in campos_enviados else contrato.fecha_fin
     )
 
     if nueva_fecha_inicio is None:
