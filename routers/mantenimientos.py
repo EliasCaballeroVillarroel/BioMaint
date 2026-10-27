@@ -1,23 +1,23 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from schemas.mantenimientos import (
-    MantenimientoCreate,
-    MantenimientoUpdate,
-    MantenimientoResponse,
-)
 from crud.mantenimientos import (
-    listar_mantenimientos,
-    obtener_mantenimiento,
-    crear_mantenimiento,
     actualizar_mantenimiento,
-    eliminar_mantenimiento,
-    listar_mantenimientos_equipo,
     asignar_tecnico,
+    crear_mantenimiento,
     desasignar_tecnico,
+    eliminar_mantenimiento,
+    listar_mantenimientos,
+    listar_mantenimientos_equipo,
+    obtener_mantenimiento,
 )
 from database.dependencies import obtener_sesion
 from routers.errores import no_existe, sin_campos_para_actualizar
+from schemas.mantenimientos import (
+    MantenimientoCreate,
+    MantenimientoResponse,
+    MantenimientoUpdate,
+)
 
 router = APIRouter(tags=["Mantenimientos"])
 
@@ -87,7 +87,6 @@ def eliminar(mantenimiento_id: int, session: Session = Depends(obtener_sesion)):
     if not eliminar_mantenimiento(session, mantenimiento_id):
         raise no_existe("un mantenimiento", mantenimiento_id)
 
-    return None
 
 
 @router.get(

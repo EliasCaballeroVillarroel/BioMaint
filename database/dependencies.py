@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from database.db import SessionLocal
 
 
-def obtener_sesion() -> Generator[Session, None, None]:
+def obtener_sesion() -> Generator[Session]:
     session = SessionLocal()
 
     try:

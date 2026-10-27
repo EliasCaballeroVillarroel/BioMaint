@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from crud.errores import ConflictoError, DatosInvalidosError, NoEncontradoError
 from crud.transacciones import confirmar
-from models import Mantenimiento, Equipo, Falla, Tecnico
+from models import Equipo, Falla, Mantenimiento, Tecnico
 
 # Campos que definen la relación del mantenimiento con su falla.
 CAMPOS_DE_LA_RELACION = {"tipo_mantenimiento", "falla_id", "fecha"}

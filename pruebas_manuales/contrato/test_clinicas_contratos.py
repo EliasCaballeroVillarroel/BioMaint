@@ -3,7 +3,6 @@ from sqlalchemy import select
 from database.db import SessionLocal
 from models import Clinica, Contrato
 
-
 with SessionLocal() as session:
     print("=== CLÍNICAS ===")
 

@@ -1,9 +1,9 @@
 from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
+from base_pruebas import engine_pruebas, url_pruebas
 from sqlalchemy import inspect, text
 
-from base_pruebas import engine_pruebas, url_pruebas
 from database.base import Base
 from database.migrar import REVISION_INICIAL, config_alembic, migrar
 

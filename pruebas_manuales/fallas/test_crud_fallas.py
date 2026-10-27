@@ -1,6 +1,5 @@
+from crud.fallas import listar_fallas, listar_fallas_equipo, obtener_falla
 from database.db import SessionLocal
-from crud.fallas import listar_fallas, obtener_falla, listar_fallas_equipo
-
 
 with SessionLocal() as session:
     print("=== FALLAS REGISTRADAS ===")

@@ -2,21 +2,21 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from crud.ubicaciones import (
-    listar_ubicaciones,
-    obtener_ubicacion,
-    crear_ubicacion,
     actualizar_ubicacion,
+    crear_ubicacion,
     eliminar_ubicacion,
     listar_equipos_ubicacion,
+    listar_ubicaciones,
+    obtener_ubicacion,
 )
-from schemas.ubicaciones import (
-    UbicacionCreate,
-    UbicacionUpdate,
-    UbicacionResponse,
-)
-from schemas.equipos import EquipoResponse
 from database.dependencies import obtener_sesion
 from routers.errores import no_existe, sin_campos_para_actualizar
+from schemas.equipos import EquipoResponse
+from schemas.ubicaciones import (
+    UbicacionCreate,
+    UbicacionResponse,
+    UbicacionUpdate,
+)
 
 router = APIRouter(tags=["Ubicaciones"])
 

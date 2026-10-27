@@ -1,22 +1,22 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+
 from crud.clinicas import (
+    actualizar_clinica,
+    crear_clinica,
+    dar_de_baja_clinica,
+    eliminar_clinica,
     listar_clinicas,
     obtener_clinica,
-    crear_clinica,
-    actualizar_clinica,
-    eliminar_clinica,
-    dar_de_baja_clinica,
     reactivar_clinica,
-)
-from schemas.clinicas import (
-    ClinicaCreate,
-    ClinicaUpdate,
-    ClinicaResponse,
 )
 from database.dependencies import obtener_sesion
 from routers.errores import no_existe, sin_campos_para_actualizar
-
+from schemas.clinicas import (
+    ClinicaCreate,
+    ClinicaResponse,
+    ClinicaUpdate,
+)
 
 router = APIRouter(tags=["Clínicas"])
 

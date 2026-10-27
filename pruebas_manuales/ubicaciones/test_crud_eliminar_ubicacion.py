@@ -1,6 +1,5 @@
-from database.db import SessionLocal
 from crud.ubicaciones import eliminar_ubicacion, obtener_ubicacion
-
+from database.db import SessionLocal
 
 # Reemplazar por el ID real de la ubicación de prueba.
 ID_UBICACION_PRUEBA = 6

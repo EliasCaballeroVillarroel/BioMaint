@@ -640,6 +640,7 @@ def test_un_put_parcial_no_revalida_la_relacion_con_la_falla(
     # Simula un registro cargado antes de las reglas de T7: un
     # correctivo sin falla, insertado directamente en la base.
     from base_pruebas import SesionPruebas
+
     from models import Mantenimiento
 
     with SesionPruebas() as session:

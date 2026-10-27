@@ -1,4 +1,5 @@
 from datetime import date
+
 from database.db import SessionLocal
 from models.equipos import Equipo
 

@@ -1,5 +1,5 @@
+from crud.contratos import listar_contratos, listar_contratos_equipo, obtener_contrato
 from database.db import SessionLocal
-from crud.contratos import listar_contratos, obtener_contrato, listar_contratos_equipo
 
 with SessionLocal() as session:
     print("=== CONTRATOS ===")

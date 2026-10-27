@@ -1,5 +1,5 @@
-from database.db import SessionLocal
 from crud.mantenimientos import eliminar_mantenimiento
+from database.db import SessionLocal
 
 ID_MANTENIMIENTO_PRUEBA = 34  # Reemplazar por el ID real
 

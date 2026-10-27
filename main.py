@@ -7,13 +7,13 @@ from crud.errores import (
     DatosInvalidosError,
     NoEncontradoError,
 )
-from routers.equipos import router as equipos_router
 from routers.clinicas import router as clinicas_router
-from routers.ubicaciones import router as ubicaciones_router
+from routers.contratos import router as contratos_router
+from routers.equipos import router as equipos_router
 from routers.fallas import router as fallas_router
 from routers.mantenimientos import router as mantenimientos_router
 from routers.tecnicos import router as tecnicos_router
-from routers.contratos import router as contratos_router
+from routers.ubicaciones import router as ubicaciones_router
 
 app = FastAPI(
     title="BioMaint API",

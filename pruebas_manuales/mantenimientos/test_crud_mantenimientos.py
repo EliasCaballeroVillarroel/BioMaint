@@ -1,10 +1,9 @@
-from database.db import SessionLocal
 from crud.mantenimientos import (
     listar_mantenimientos,
-    obtener_mantenimiento,
     listar_mantenimientos_equipo,
+    obtener_mantenimiento,
 )
-
+from database.db import SessionLocal
 
 with SessionLocal() as session:
     print("=== MANTENIMIENTOS ===")

@@ -1,21 +1,21 @@
 import pytest
+from base_pruebas import SesionPruebas, engine_pruebas, url_pruebas
 from fastapi.testclient import TestClient
 from sqlalchemy import delete, select, text
 from sqlalchemy.orm import Session
 
-from base_pruebas import SesionPruebas, engine_pruebas, url_pruebas
 from database.base import Base
 from database.dependencies import obtener_sesion
 from database.migrar import migrar
 from main import app
 from models import (
     Clinica,
-    Ubicacion,
+    Contrato,
     Equipo,
     Falla,
     Mantenimiento,
-    Contrato,
     Tecnico,
+    Ubicacion,
     mantenimiento_tecnicos,
 )
 

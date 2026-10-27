@@ -1,23 +1,22 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from crud.contratos import (
+    actualizar_contrato,
+    cancelar_contrato,
+    crear_contrato,
+    eliminar_contrato,
+    listar_contratos,
+    listar_contratos_equipo,
+    obtener_contrato,
+)
 from database.dependencies import obtener_sesion
 from routers.errores import no_existe, sin_campos_para_actualizar
 from schemas.contratos import (
     ContratoCreate,
-    ContratoUpdate,
     ContratoResponse,
+    ContratoUpdate,
 )
-from crud.contratos import (
-    listar_contratos,
-    obtener_contrato,
-    crear_contrato,
-    actualizar_contrato,
-    eliminar_contrato,
-    cancelar_contrato,
-    listar_contratos_equipo,
-)
-
 
 router = APIRouter(tags=["Contratos"])
 
@@ -79,7 +78,6 @@ def eliminar(contrato_id: int, session: Session = Depends(obtener_sesion)):
     if not eliminar_contrato(session, contrato_id):
         raise no_existe("un contrato", contrato_id)
 
-    return None
 
 
 @router.post("/contratos/{contrato_id}/cancelar", response_model=ContratoResponse)

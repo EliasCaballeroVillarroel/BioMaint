@@ -1,7 +1,9 @@
 import os
+
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 # SQLAlchemy trabaja con ORM Object-Relational Mapping, que permite mapear las tablas de la base de datos a clases de Python y viceversa.
 # Esto facilita la interacción con la base de datos utilizando objetos en lugar de escribir consultas SQL directamente.
 

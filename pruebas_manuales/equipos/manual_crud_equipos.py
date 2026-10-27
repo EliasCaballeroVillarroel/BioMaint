@@ -62,9 +62,8 @@ with SessionLocal() as session:
         print(f"Estado: {equipo.estado_actual}")
 """
 
-from database.db import SessionLocal
 from crud.equipos import eliminar_equipo, obtener_equipo
-
+from database.db import SessionLocal
 
 # Reemplazar por el ID del equipo de prueba creado anteriormente.
 ID_EQUIPO_PRUEBA = 26

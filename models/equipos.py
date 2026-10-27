@@ -1,14 +1,17 @@
 from __future__ import annotations
-from sqlalchemy import String, Date, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from database.base import Base
+
 from typing import TYPE_CHECKING
 
+from sqlalchemy import Date, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from database.base import Base
+
 if TYPE_CHECKING:
-    from models.fallas import Falla
-    from models.ubicaciones import Ubicacion
     from models.contratos import Contrato
+    from models.fallas import Falla
     from models.mantenimientos import Mantenimiento
+    from models.ubicaciones import Ubicacion
 
 
 class Equipo(Base):  # Creamos una clase que va representar a equipos
@@ -34,12 +37,12 @@ class Equipo(Base):  # Creamos una clase que va representar a equipos
 
     estado_actual: Mapped[str] = mapped_column(String(30), nullable=False)
 
-    ubicacion: Mapped["Ubicacion"] = relationship(back_populates="equipos")
-    fallas: Mapped[list["Falla"]] = relationship(back_populates="equipo")
-    mantenimientos: Mapped[list["Mantenimiento"]] = relationship(
+    ubicacion: Mapped[Ubicacion] = relationship(back_populates="equipos")
+    fallas: Mapped[list[Falla]] = relationship(back_populates="equipo")
+    mantenimientos: Mapped[list[Mantenimiento]] = relationship(
         back_populates="equipo"
     )
-    contratos: Mapped[list["Contrato"]] = relationship(back_populates="equipo")
+    contratos: Mapped[list[Contrato]] = relationship(back_populates="equipo")
 
     @property
     def dado_de_baja(self) -> bool:

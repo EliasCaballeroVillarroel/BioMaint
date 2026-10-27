@@ -1,8 +1,7 @@
 from sqlalchemy import select
 
 from database.db import SessionLocal
-from models import Clinica, Ubicacion, Equipo, Falla, Mantenimiento, Tecnico, Contrato
-
+from models import Clinica, Contrato, Equipo, Falla, Mantenimiento, Tecnico, Ubicacion
 
 with SessionLocal() as session:
     print("=== CLÍNICAS DE PRUEBA ===")

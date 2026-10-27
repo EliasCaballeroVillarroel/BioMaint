@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Date, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from models.tecnicos import Tecnico
     from models.equipos import Equipo
     from models.fallas import Falla
+    from models.tecnicos import Tecnico
 
 
 class Mantenimiento(Base):
@@ -32,10 +32,10 @@ class Mantenimiento(Base):
     descripcion: Mapped[str | None] = mapped_column(Text)
     resultado: Mapped[str | None] = mapped_column(Text)
 
-    equipo: Mapped["Equipo"] = relationship(back_populates="mantenimientos")
+    equipo: Mapped[Equipo] = relationship(back_populates="mantenimientos")
 
-    falla: Mapped["Falla | None"] = relationship(back_populates="mantenimientos")
-    tecnicos: Mapped[list["Tecnico"]] = relationship(
+    falla: Mapped[Falla | None] = relationship(back_populates="mantenimientos")
+    tecnicos: Mapped[list[Tecnico]] = relationship(
         secondary="mantenimiento_tecnicos", back_populates="mantenimientos"
     )
 

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Date, ForeignKey, String, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from models.equipos import Equipo
@@ -33,7 +33,7 @@ class Contrato(Base):
         Boolean, nullable=False, default=False, server_default=false()
     )
 
-    equipo: Mapped["Equipo"] = relationship(back_populates="contratos")
+    equipo: Mapped[Equipo] = relationship(back_populates="contratos")
 
     @property
     def estado(self) -> str:

@@ -1,13 +1,12 @@
 from datetime import date
 
-from database.db import SessionLocal
 from crud.mantenimientos import (
-    crear_mantenimiento,
     actualizar_mantenimiento,
-    obtener_mantenimiento,
     asignar_tecnico,
+    crear_mantenimiento,
+    obtener_mantenimiento,
 )
-
+from database.db import SessionLocal
 
 with SessionLocal() as session:
     mantenimiento = crear_mantenimiento(

@@ -2,21 +2,20 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from crud.equipos import (
+    actualizar_equipo,
+    crear_equipo,
+    dar_de_baja_equipo,
+    eliminar_equipo,
     listar_equipos,
     obtener_equipo,
-    crear_equipo,
-    actualizar_equipo,
-    eliminar_equipo,
-    dar_de_baja_equipo,
-)
-from schemas.equipos import (
-    EquipoCreate,
-    EquipoUpdate,
-    EquipoResponse,
 )
 from database.dependencies import obtener_sesion
 from routers.errores import no_existe, sin_campos_para_actualizar
-
+from schemas.equipos import (
+    EquipoCreate,
+    EquipoResponse,
+    EquipoUpdate,
+)
 
 router = APIRouter(tags=["Equipos"])
 

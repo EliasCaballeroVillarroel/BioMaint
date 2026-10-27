@@ -1,8 +1,7 @@
 from sqlalchemy import select
 
 from database.db import SessionLocal
-from models import Equipo, Ubicacion, Falla
-
+from models import Equipo
 
 with SessionLocal() as session:
     stmt = select(Equipo).where(Equipo.id == 1)

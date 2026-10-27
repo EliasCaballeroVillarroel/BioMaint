@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
 from schemas.estados import EstadoEquipo
-from schemas.validadores import rechazar_null, rechazar_dado_de_baja
+from schemas.validadores import rechazar_dado_de_baja, rechazar_null
 
 
 class EquipoCreate(BaseModel):

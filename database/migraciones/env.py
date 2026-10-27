@@ -1,14 +1,12 @@
 from logging.config import fileConfig
 
-from sqlalchemy import create_engine, pool
-
 from alembic import context
-
-from database.base import Base
-from database.db import DATABASE_URL
+from sqlalchemy import create_engine, pool
 
 # Registrar todos los modelos en Base.metadata para el autogenerate.
 import models  # noqa: F401
+from database.base import Base
+from database.db import DATABASE_URL
 
 config = context.config
 

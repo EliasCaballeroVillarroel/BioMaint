@@ -1,8 +1,7 @@
 from datetime import date
 
+from crud.fallas import actualizar_falla, crear_falla, obtener_falla
 from database.db import SessionLocal
-from crud.fallas import crear_falla, actualizar_falla, obtener_falla
-
 
 with SessionLocal() as session:
     falla = crear_falla(

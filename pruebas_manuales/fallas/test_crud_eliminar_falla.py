@@ -1,6 +1,5 @@
-from database.db import SessionLocal
 from crud.fallas import eliminar_falla, obtener_falla
-
+from database.db import SessionLocal
 
 # Reemplazar por el ID real obtenido al crear la falla de prueba.
 ID_FALLA_PRUEBA = 21

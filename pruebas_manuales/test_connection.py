@@ -3,7 +3,6 @@ from sqlalchemy import select
 from database.db import SessionLocal
 from models.equipos import Equipo
 
-
 with SessionLocal() as session:
     stmt = select(
         Equipo

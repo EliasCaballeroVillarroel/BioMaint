@@ -1,6 +1,5 @@
+from crud.clinicas import listar_clinicas, listar_ubicaciones_clinica, obtener_clinica
 from database.db import SessionLocal
-from crud.clinicas import listar_clinicas, obtener_clinica, listar_ubicaciones_clinica
-
 
 with SessionLocal() as session:
     print("=== CLÍNICAS ===")

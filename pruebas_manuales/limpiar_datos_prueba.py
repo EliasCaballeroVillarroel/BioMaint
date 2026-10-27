@@ -1,8 +1,7 @@
-from database.db import SessionLocal
 from crud.clinicas import eliminar_clinica
 from crud.equipos import eliminar_equipo
+from database.db import SessionLocal
 from models import Clinica, Equipo
-
 
 with SessionLocal() as session:
     # 1. Limpiar clínica de prueba

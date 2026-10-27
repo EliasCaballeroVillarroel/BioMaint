@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from models.mantenimientos import Mantenimiento
@@ -21,6 +22,6 @@ class Tecnico(Base):
 
     empresa: Mapped[str | None] = mapped_column(String(100))
 
-    mantenimientos: Mapped[list["Mantenimiento"]] = relationship(
+    mantenimientos: Mapped[list[Mantenimiento]] = relationship(
         secondary="mantenimiento_tecnicos", back_populates="tecnicos"
     )

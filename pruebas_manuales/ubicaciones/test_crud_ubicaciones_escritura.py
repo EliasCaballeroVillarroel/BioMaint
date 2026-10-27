@@ -1,9 +1,8 @@
 from sqlalchemy import select
 
+from crud.ubicaciones import actualizar_ubicacion, crear_ubicacion, obtener_ubicacion
 from database.db import SessionLocal
 from models import Clinica
-from crud.ubicaciones import crear_ubicacion, actualizar_ubicacion, obtener_ubicacion
-
 
 with SessionLocal() as session:
     clinica = session.scalar(select(Clinica).order_by(Clinica.id))

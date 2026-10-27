@@ -1,6 +1,5 @@
+from crud.clinicas import actualizar_clinica, crear_clinica, obtener_clinica
 from database.db import SessionLocal
-from crud.clinicas import crear_clinica, actualizar_clinica, obtener_clinica
-
 
 with SessionLocal() as session:
     clinica = crear_clinica(

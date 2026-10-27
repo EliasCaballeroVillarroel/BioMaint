@@ -3,7 +3,7 @@ from datetime import date
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from schemas.estados import SeveridadFalla
-from schemas.validadores import rechazar_null, rechazar_fecha_futura
+from schemas.validadores import rechazar_fecha_futura, rechazar_null
 
 
 class FallaCreate(BaseModel):

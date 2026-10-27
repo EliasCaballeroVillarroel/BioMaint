@@ -2,8 +2,8 @@ from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-from schemas.validadores import rechazar_null
 
+from schemas.validadores import rechazar_null
 
 # Calculado a partir de las fechas (ver models/contratos.py).
 EstadoContrato = Literal[

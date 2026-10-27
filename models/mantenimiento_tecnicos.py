@@ -1,4 +1,5 @@
-from sqlalchemy import ForeignKey, Table, Column
+from sqlalchemy import Column, ForeignKey, Table
+
 from database.base import Base
 
 mantenimiento_tecnicos = Table(

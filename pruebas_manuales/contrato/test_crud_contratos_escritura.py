@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
+from crud.contratos import actualizar_contrato, crear_contrato, eliminar_contrato
 from database.db import SessionLocal
-from crud.contratos import crear_contrato, actualizar_contrato, eliminar_contrato
 
 with SessionLocal() as session:
     contrato_id = None

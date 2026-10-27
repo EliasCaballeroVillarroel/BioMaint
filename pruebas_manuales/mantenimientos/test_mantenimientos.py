@@ -1,8 +1,7 @@
 from sqlalchemy import select
 
 from database.db import SessionLocal
-from models import Equipo, Ubicacion, Falla, Mantenimiento
-
+from models import Mantenimiento
 
 with SessionLocal() as session:
     stmt = select(Mantenimiento).limit(5)

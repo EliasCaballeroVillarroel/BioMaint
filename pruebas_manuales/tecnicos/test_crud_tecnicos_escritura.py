@@ -1,5 +1,5 @@
+from crud.tecnicos import actualizar_tecnico, crear_tecnico, eliminar_tecnico
 from database.db import SessionLocal
-from crud.tecnicos import crear_tecnico, actualizar_tecnico, eliminar_tecnico
 
 with SessionLocal() as session:
     tecnico_id = None

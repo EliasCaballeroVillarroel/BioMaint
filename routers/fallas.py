@@ -2,21 +2,20 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from crud.fallas import (
-    listar_fallas,
-    obtener_falla,
-    crear_falla,
     actualizar_falla,
+    crear_falla,
     eliminar_falla,
+    listar_fallas,
     listar_fallas_equipo,
-)
-from schemas.fallas import (
-    FallaCreate,
-    FallaUpdate,
-    FallaResponse,
+    obtener_falla,
 )
 from database.dependencies import obtener_sesion
 from routers.errores import no_existe, sin_campos_para_actualizar
-
+from schemas.fallas import (
+    FallaCreate,
+    FallaResponse,
+    FallaUpdate,
+)
 
 router = APIRouter(tags=["Fallas"])
 
