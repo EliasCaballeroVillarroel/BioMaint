@@ -18,7 +18,13 @@ dependencies = [
 dev = [
     "pytest>=9.1.1",
     "httpx>=0.28.1",
+    "ruff>=0.17.3",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
+
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
