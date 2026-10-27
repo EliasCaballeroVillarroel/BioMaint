@@ -23,10 +23,7 @@ class ContratoCreate(BaseModel):
 
     @model_validator(mode="after")
     def validar_fechas(self):
-        if (
-            self.fecha_fin is not None
-            and self.fecha_fin < self.fecha_inicio
-        ):
+        if self.fecha_fin is not None and self.fecha_fin < self.fecha_inicio:
             raise ValueError(
                 "La fecha de fin no puede ser anterior a la fecha de inicio."
             )
@@ -34,9 +31,7 @@ class ContratoCreate(BaseModel):
 
 
 class ContratoUpdate(BaseModel):
-    tipo_contrato: str | None = Field(
-        default=None, min_length=1, max_length=100
-    )
+    tipo_contrato: str | None = Field(default=None, min_length=1, max_length=100)
     empresa: str | None = Field(default=None, max_length=100)
     fecha_inicio: date | None = None
     fecha_fin: date | None = None

@@ -5,7 +5,6 @@ from models.ubicaciones import Ubicacion
 
 
 with SessionLocal() as session:
-
     stmt = select(Equipo).where(Equipo.id == 1)
 
     equipo = session.scalar(stmt)
@@ -29,10 +28,4 @@ with SessionLocal() as session:
     print("\nEquipos en esta ubicación:")
 
     for equipo in ubicacion.equipos:
-        print(
-            equipo.id,
-            equipo.nombre,
-            equipo.marca,
-            equipo.modelo
-        )
-
+        print(equipo.id, equipo.nombre, equipo.marca, equipo.modelo)

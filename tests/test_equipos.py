@@ -37,6 +37,7 @@ def test_consultar_equipo_inexistente_devuelve_404(cliente):
 
     assert respuesta.status_code == 404
 
+
 def test_crear_equipo_con_ubicacion_inexistente_devuelve_404(cliente):
     datos = {
         "nombre": "Equipo de prueba",
@@ -48,9 +49,7 @@ def test_crear_equipo_con_ubicacion_inexistente_devuelve_404(cliente):
     respuesta = cliente.post("/equipos", json=datos)
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe una ubicación con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe una ubicación con ID 999999."}
 
 
 def test_crear_equipo_con_estado_invalido_devuelve_422(
@@ -128,9 +127,9 @@ def test_actualizar_equipo_inexistente_devuelve_404(cliente):
     )
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe un equipo con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe un equipo con ID 999999."}
+
+
 def test_actualizar_equipo_con_ubicacion_inexistente_devuelve_404(
     cliente,
     ubicacion_prueba,
@@ -199,7 +198,7 @@ def test_eliminar_equipo_existente(cliente, ubicacion_prueba):
         "nombre": "Equipo para probar eliminación",
         "ubicacion_id": ubicacion_prueba,
         "estado_actual": "activo",
-        "numero_serie": "TEST-DELETE-001"
+        "numero_serie": "TEST-DELETE-001",
     }
 
     respuesta_creacion = cliente.post("/equipos", json=datos_equipo)
@@ -258,6 +257,7 @@ def test_dar_de_baja_equipo_inexistente_devuelve_404(cliente):
     respuesta = cliente.post("/equipos/999999/baja")
 
     assert respuesta.status_code == 404
+
 
 def test_no_se_puede_actualizar_equipo_dado_de_baja(
     cliente,
@@ -338,12 +338,15 @@ def test_listar_equipos_sin_registros_devuelve_lista_vacia(
 
 
 def test_actualizar_nombre_equipo(cliente, ubicacion_prueba):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo original",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-UPD-NOMBRE-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo original",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-UPD-NOMBRE-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -357,12 +360,15 @@ def test_actualizar_nombre_equipo(cliente, ubicacion_prueba):
 
 
 def test_actualizar_estado_equipo(cliente, ubicacion_prueba):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo para estado",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-UPD-ESTADO-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo para estado",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-UPD-ESTADO-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -376,12 +382,15 @@ def test_actualizar_estado_equipo(cliente, ubicacion_prueba):
 
 
 def test_actualizar_tipo_equipo(cliente, ubicacion_prueba):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo para tipo",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-UPD-TIPO-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo para tipo",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-UPD-TIPO-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -395,12 +404,15 @@ def test_actualizar_tipo_equipo(cliente, ubicacion_prueba):
 
 
 def test_actualizar_modelo_equipo(cliente, ubicacion_prueba):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo para modelo",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-UPD-MODELO-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo para modelo",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-UPD-MODELO-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -414,12 +426,15 @@ def test_actualizar_modelo_equipo(cliente, ubicacion_prueba):
 
 
 def test_actualizar_marca_equipo(cliente, ubicacion_prueba):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo para marca",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-UPD-MARCA-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo para marca",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-UPD-MARCA-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -433,12 +448,15 @@ def test_actualizar_marca_equipo(cliente, ubicacion_prueba):
 
 
 def test_actualizar_numero_serie_equipo(cliente, ubicacion_prueba):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo para serie",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-UPD-SERIE-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo para serie",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-UPD-SERIE-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -457,9 +475,7 @@ def test_actualizar_ubicacion_equipo(
     crear_ubicacion_api,
 ):
     nueva_ubicacion_id = crear_ubicacion_api()["id"]
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-UPD-UBICACION-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-UPD-UBICACION-001")
 
     respuesta = cliente.put(
         f"/equipos/{original['id']}",
@@ -478,21 +494,27 @@ def test_crear_equipo_con_nombre_vacio_devuelve_422(
     cliente,
     ubicacion_prueba,
 ):
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+        },
+    )
 
     assert respuesta.status_code == 422
 
 
 def test_crear_equipo_con_ubicacion_cero_devuelve_422(cliente):
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "Equipo de prueba",
-        "ubicacion_id": 0,
-        "estado_actual": "activo",
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo de prueba",
+            "ubicacion_id": 0,
+            "estado_actual": "activo",
+        },
+    )
 
     assert respuesta.status_code == 422
 
@@ -501,12 +523,15 @@ def test_crear_equipo_con_numero_serie_vacio_devuelve_422(
     cliente,
     ubicacion_prueba,
 ):
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "Equipo de prueba",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "",
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo de prueba",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "",
+        },
+    )
 
     assert respuesta.status_code == 422
 
@@ -515,10 +540,13 @@ def test_crear_equipo_sin_estado_devuelve_422(
     cliente,
     ubicacion_prueba,
 ):
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "Equipo de prueba",
-        "ubicacion_id": ubicacion_prueba,
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo de prueba",
+            "ubicacion_id": ubicacion_prueba,
+        },
+    )
 
     assert respuesta.status_code == 422
 
@@ -527,12 +555,15 @@ def test_actualizar_equipo_con_nombre_vacio_devuelve_422(
     cliente,
     ubicacion_prueba,
 ):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo original",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-LIMITE-NOMBRE-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo original",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-LIMITE-NOMBRE-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -553,12 +584,15 @@ def test_actualizar_equipo_con_numero_serie_vacio_devuelve_422(
     cliente,
     ubicacion_prueba,
 ):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo original",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-LIMITE-SERIE-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo original",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-LIMITE-SERIE-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -579,20 +613,26 @@ def test_actualizar_numero_serie_duplicado_no_modifica_equipos(
     cliente,
     ubicacion_prueba,
 ):
-    equipo_a = cliente.post("/equipos", json={
-        "nombre": "Equipo A",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-DUPLICADO-A",
-    })
+    equipo_a = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo A",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-DUPLICADO-A",
+        },
+    )
     assert equipo_a.status_code == 201
 
-    equipo_b = cliente.post("/equipos", json={
-        "nombre": "Equipo B",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-DUPLICADO-B",
-    })
+    equipo_b = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo B",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-DUPLICADO-B",
+        },
+    )
     assert equipo_b.status_code == 201
 
     id_a = equipo_a.json()["id"]
@@ -619,12 +659,15 @@ def test_reactivar_equipo_dado_de_baja_no_modifica_estado(
     cliente,
     ubicacion_prueba,
 ):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo retirado",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-REACTIVACION-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo retirado",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-REACTIVACION-001",
+        },
+    )
     assert creado.status_code == 201
 
     equipo_id = creado.json()["id"]
@@ -648,15 +691,18 @@ def test_crear_equipo_devuelve_formato_esperado(
     cliente,
     ubicacion_prueba,
 ):
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "Equipo para validar respuesta",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "tipo": "Ecografo",
-        "modelo": "Modelo QA",
-        "marca": "Marca QA",
-        "numero_serie": "TEST-FORMATO-001",
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo para validar respuesta",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "tipo": "Ecografo",
+            "modelo": "Modelo QA",
+            "marca": "Marca QA",
+            "numero_serie": "TEST-FORMATO-001",
+        },
+    )
 
     assert respuesta.status_code == 201
 
@@ -688,9 +734,7 @@ def test_error_equipo_inexistente_tiene_formato_esperado(cliente):
     respuesta = cliente.get("/equipos/999999")
 
     assert respuesta.status_code == 404
-    assert respuesta.headers["content-type"].startswith(
-        "application/json"
-    )
+    assert respuesta.headers["content-type"].startswith("application/json")
 
     datos = respuesta.json()
 
@@ -702,30 +746,27 @@ def test_listado_devuelve_elementos_con_formato_equipo(
     cliente,
     ubicacion_prueba,
 ):
-    creado = cliente.post("/equipos", json={
-        "nombre": "Equipo de listado QA",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-FORMATO-LISTA-001",
-    })
+    creado = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo de listado QA",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-FORMATO-LISTA-001",
+        },
+    )
     assert creado.status_code == 201
 
     respuesta = cliente.get("/equipos")
 
     assert respuesta.status_code == 200
-    assert respuesta.headers["content-type"].startswith(
-        "application/json"
-    )
+    assert respuesta.headers["content-type"].startswith("application/json")
 
     equipos = respuesta.json()
     assert isinstance(equipos, list)
 
     equipo = next(
-        (
-            elemento
-            for elemento in equipos
-            if elemento["id"] == creado.json()["id"]
-        ),
+        (elemento for elemento in equipos if elemento["id"] == creado.json()["id"]),
         None,
     )
 
@@ -744,6 +785,7 @@ def test_listado_devuelve_elementos_con_formato_equipo(
 
 
 # --- Valores límite, nulos y actualizaciones fallidas ---
+
 
 def crear_equipo_prueba(cliente, ubicacion_id, numero_serie, **extra):
     datos = {
@@ -768,15 +810,18 @@ def test_crear_equipo_con_campos_de_100_caracteres(
 ):
     texto_limite = "x" * 100
 
-    respuesta = cliente.post("/equipos", json={
-        "nombre": texto_limite,
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-        "tipo": texto_limite,
-        "modelo": texto_limite,
-        "marca": texto_limite,
-        "numero_serie": "S" * 100,
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": texto_limite,
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+            "tipo": texto_limite,
+            "modelo": texto_limite,
+            "marca": texto_limite,
+            "numero_serie": "S" * 100,
+        },
+    )
 
     assert respuesta.status_code == 201
     assert respuesta.json()["nombre"] == texto_limite
@@ -806,11 +851,14 @@ def test_crear_equipo_con_campo_de_101_caracteres_devuelve_422(
 
 
 def test_crear_equipo_con_ubicacion_negativa_devuelve_422(cliente):
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "Equipo de prueba",
-        "ubicacion_id": -1,
-        "estado_actual": "activo",
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo de prueba",
+            "ubicacion_id": -1,
+            "estado_actual": "activo",
+        },
+    )
 
     assert respuesta.status_code == 422
 
@@ -831,9 +879,7 @@ def test_actualizar_equipo_con_valor_fuera_de_limite_devuelve_422(
     ubicacion_prueba,
     cambios,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-LIMITE-UPD-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-LIMITE-UPD-001")
 
     respuesta = cliente.put(f"/equipos/{original['id']}", json=cambios)
 
@@ -852,9 +898,7 @@ def test_actualizar_campo_obligatorio_a_null_devuelve_422(
     ubicacion_prueba,
     campo,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-NULL-OBLIG-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-NULL-OBLIG-001")
 
     respuesta = cliente.put(
         f"/equipos/{original['id']}",
@@ -868,9 +912,7 @@ def test_actualizar_campo_obligatorio_a_null_devuelve_422(
 
 
 def test_actualizar_varios_campos_a_la_vez(cliente, ubicacion_prueba):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-UPD-VARIOS-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-UPD-VARIOS-001")
 
     cambios = {
         "nombre": "Nombre nuevo",
@@ -891,9 +933,7 @@ def test_actualizar_con_ubicacion_inexistente_no_modifica_otros_campos(
     cliente,
     ubicacion_prueba,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-UBIC-FALLIDA-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-UBIC-FALLIDA-001")
 
     respuesta = cliente.put(
         f"/equipos/{original['id']}",
@@ -910,9 +950,7 @@ def test_actualizar_equipo_dado_de_baja_no_modifica_ningun_campo(
     cliente,
     ubicacion_prueba,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-BAJA-VARIOS-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-BAJA-VARIOS-001")
 
     baja = cliente.post(f"/equipos/{original['id']}/baja")
     assert baja.status_code == 200
@@ -937,18 +975,13 @@ def test_eliminar_equipo_devuelve_formato_esperado(
     cliente,
     ubicacion_prueba,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-FORMATO-DELETE-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-FORMATO-DELETE-001")
 
     respuesta = cliente.delete(f"/equipos/{original['id']}")
 
     assert respuesta.status_code == 200
     assert respuesta.json() == {
-        "mensaje": (
-            f"El equipo con ID {original['id']} "
-            "fue eliminado correctamente."
-        )
+        "mensaje": (f"El equipo con ID {original['id']} fue eliminado correctamente.")
     }
 
 
@@ -956,9 +989,7 @@ def test_dar_de_baja_devuelve_formato_esperado(
     cliente,
     ubicacion_prueba,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-FORMATO-BAJA-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-FORMATO-BAJA-001")
 
     respuesta = cliente.post(f"/equipos/{original['id']}/baja")
 
@@ -970,6 +1001,7 @@ def test_dar_de_baja_devuelve_formato_esperado(
 
 
 # --- Ubicaciones dadas de baja ---
+
 
 @pytest.fixture
 def ubicacion_dada_de_baja(cliente, crear_ubicacion_api):
@@ -985,12 +1017,15 @@ def test_crear_equipo_en_ubicacion_dada_de_baja_devuelve_409(
 ):
     ubicacion_id = ubicacion_dada_de_baja
 
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "No deberia crearse",
-        "ubicacion_id": ubicacion_id,
-        "estado_actual": "activo",
-        "numero_serie": "TEST-UBIC-INACTIVA-001",
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "No deberia crearse",
+            "ubicacion_id": ubicacion_id,
+            "estado_actual": "activo",
+            "numero_serie": "TEST-UBIC-INACTIVA-001",
+        },
+    )
 
     assert respuesta.status_code == 409
     assert respuesta.json() == {
@@ -1006,9 +1041,7 @@ def test_mover_equipo_a_ubicacion_dada_de_baja_devuelve_409(
     ubicacion_prueba,
     ubicacion_dada_de_baja,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-MOVER-INACTIVA-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-MOVER-INACTIVA-001")
     ubicacion_id = ubicacion_dada_de_baja
 
     respuesta = cliente.put(
@@ -1029,9 +1062,7 @@ def test_equipo_de_clinica_dada_de_baja_queda_marcado_y_sigue_operativo(
     crear_ubicacion_api,
 ):
     ubicacion = crear_ubicacion_api()
-    original = crear_equipo_prueba(
-        cliente, ubicacion["id"], "TEST-MARCA-BAJA-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion["id"], "TEST-MARCA-BAJA-001")
     assert original["ubicacion_activa"] is True
 
     cliente.post(f"/clinicas/{ubicacion['clinica_id']}/baja")
@@ -1058,11 +1089,14 @@ def test_equipo_de_clinica_dada_de_baja_queda_marcado_y_sigue_operativo(
 
 
 def test_crear_equipo_dado_de_baja_devuelve_422(cliente, ubicacion_prueba):
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "Equipo de prueba",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "dado_de_baja",
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo de prueba",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "dado_de_baja",
+        },
+    )
 
     assert respuesta.status_code == 422
 
@@ -1071,9 +1105,7 @@ def test_actualizar_estado_a_dado_de_baja_devuelve_422(
     cliente,
     ubicacion_prueba,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-PUT-BAJA-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-PUT-BAJA-001")
 
     respuesta = cliente.put(
         f"/equipos/{original['id']}",
@@ -1088,9 +1120,7 @@ def test_eliminar_equipo_dado_de_baja_devuelve_409(
     cliente,
     ubicacion_prueba,
 ):
-    original = crear_equipo_prueba(
-        cliente, ubicacion_prueba, "TEST-DELETE-BAJA-001"
-    )
+    original = crear_equipo_prueba(cliente, ubicacion_prueba, "TEST-DELETE-BAJA-001")
     baja = cliente.post(f"/equipos/{original['id']}/baja").json()
 
     respuesta = cliente.delete(f"/equipos/{original['id']}")

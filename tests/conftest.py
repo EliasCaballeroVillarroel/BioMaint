@@ -70,31 +70,23 @@ def limpiar_clinicas(clinica_ids):
             select(Equipo.id).where(Equipo.ubicacion_id.in_(ubicacion_ids))
         ).all()
         mantenimiento_ids = session.scalars(
-            select(Mantenimiento.id).where(
-                Mantenimiento.equipo_id.in_(equipo_ids)
-            )
+            select(Mantenimiento.id).where(Mantenimiento.equipo_id.in_(equipo_ids))
         ).all()
 
         # Los mantenimientos van antes que las fallas,
         # porque un mantenimiento puede referenciar una falla.
         session.execute(
             delete(mantenimiento_tecnicos).where(
-                mantenimiento_tecnicos.c.mantenimiento_id.in_(
-                    mantenimiento_ids
-                )
+                mantenimiento_tecnicos.c.mantenimiento_id.in_(mantenimiento_ids)
             )
         )
         session.execute(
             delete(Mantenimiento).where(Mantenimiento.equipo_id.in_(equipo_ids))
         )
         session.execute(delete(Falla).where(Falla.equipo_id.in_(equipo_ids)))
-        session.execute(
-            delete(Contrato).where(Contrato.equipo_id.in_(equipo_ids))
-        )
+        session.execute(delete(Contrato).where(Contrato.equipo_id.in_(equipo_ids)))
         session.execute(delete(Equipo).where(Equipo.id.in_(equipo_ids)))
-        session.execute(
-            delete(Ubicacion).where(Ubicacion.clinica_id.in_(clinica_ids))
-        )
+        session.execute(delete(Ubicacion).where(Ubicacion.clinica_id.in_(clinica_ids)))
         session.execute(delete(Clinica).where(Clinica.id.in_(clinica_ids)))
         session.commit()
 
@@ -130,11 +122,14 @@ def ubicacion_prueba():
 @pytest.fixture
 def equipo_prueba(cliente, ubicacion_prueba):
     # Equipo activo en la ubicación temporal; se limpia junto con ella.
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "Equipo de prueba",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo de prueba",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+        },
+    )
     assert respuesta.status_code == 201
     return respuesta.json()
 

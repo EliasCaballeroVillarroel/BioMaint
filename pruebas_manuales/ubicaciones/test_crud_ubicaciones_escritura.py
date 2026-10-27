@@ -1,19 +1,12 @@
-
 from sqlalchemy import select
 
 from database.db import SessionLocal
 from models import Clinica
-from crud.ubicaciones import (
-    crear_ubicacion,
-    actualizar_ubicacion,
-    obtener_ubicacion
-)
+from crud.ubicaciones import crear_ubicacion, actualizar_ubicacion, obtener_ubicacion
 
 
 with SessionLocal() as session:
-    clinica = session.scalar(
-        select(Clinica).order_by(Clinica.id)
-    )
+    clinica = session.scalar(select(Clinica).order_by(Clinica.id))
 
     if clinica is None:
         print("No hay clínicas registradas para la prueba.")
@@ -25,7 +18,7 @@ with SessionLocal() as session:
             servicio="Servicio de prueba CRUD",
             sector="Sector de prueba",
             piso="99",
-            sala="TEST"
+            sala="TEST",
         )
 
         ubicacion_id = ubicacion.id
@@ -38,7 +31,7 @@ with SessionLocal() as session:
         actualizada = actualizar_ubicacion(
             session=session,
             ubicacion_id=ubicacion_id,
-            servicio="Servicio actualizado CRUD"
+            servicio="Servicio actualizado CRUD",
         )
 
         print("\n=== UBICACIÓN ACTUALIZADA ===")
@@ -47,12 +40,6 @@ with SessionLocal() as session:
             print(f"ID: {actualizada.id}")
             print(f"Servicio: {actualizada.servicio}")
 
-        verificada = obtener_ubicacion(
-            session,
-            ubicacion_id
-        )
+        verificada = obtener_ubicacion(session, ubicacion_id)
 
-        print(
-            "\n¿Existe en la base de datos?",
-            verificada is not None
-        )
+        print("\n¿Existe en la base de datos?", verificada is not None)

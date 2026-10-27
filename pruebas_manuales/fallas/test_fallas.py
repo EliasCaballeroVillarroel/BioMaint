@@ -5,7 +5,6 @@ from models import Equipo, Ubicacion, Falla
 
 
 with SessionLocal() as session:
-
     stmt = select(Equipo).where(Equipo.id == 1)
     equipo = session.scalar(stmt)
 
@@ -16,9 +15,4 @@ with SessionLocal() as session:
         print("\nFallas registradas:")
 
         for falla in equipo.fallas:
-            print(
-                falla.id,
-                falla.tipo_falla,
-                falla.fecha_falla,
-                falla.severidad
-            )
+            print(falla.id, falla.tipo_falla, falla.fecha_falla, falla.severidad)

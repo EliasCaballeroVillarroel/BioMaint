@@ -1,10 +1,5 @@
-
 from database.db import SessionLocal
-from crud.contratos import (
-    listar_contratos,
-    obtener_contrato,
-    listar_contratos_equipo
-)
+from crud.contratos import listar_contratos, obtener_contrato, listar_contratos_equipo
 
 with SessionLocal() as session:
     print("=== CONTRATOS ===")
@@ -32,10 +27,7 @@ with SessionLocal() as session:
     if contrato is None:
         print("No existe un contrato con ID 1.")
     else:
-        print(
-            f"Contrato {contrato.id} asociado "
-            f"al equipo {contrato.equipo_id}"
-        )
+        print(f"Contrato {contrato.id} asociado al equipo {contrato.equipo_id}")
 
     print("\n=== CONTRATOS DEL EQUIPO 1 ===")
 

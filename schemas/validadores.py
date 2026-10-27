@@ -21,7 +21,5 @@ def rechazar_fecha_futura(fecha: date | None) -> date | None:
 
 def rechazar_dado_de_baja(estado):
     if estado == EstadoEquipo.DADO_DE_BAJA:
-        raise ValueError(
-            "Para dar de baja un equipo usá POST /equipos/{id}/baja."
-        )
+        raise ValueError("Para dar de baja un equipo usá POST /equipos/{id}/baja.")
     return estado

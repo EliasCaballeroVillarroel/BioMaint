@@ -12,6 +12,7 @@ El downgrade reconstruye el estado con la fecha del día en que se
 ejecuta, así que Pendiente/Activo/Vencido pueden diferir de los
 valores originales si pasó el tiempo.
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -19,8 +20,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '26d80ad4948d'
-down_revision: Union[str, Sequence[str], None] = '9dde320bbb20'
+revision: str = "26d80ad4948d"
+down_revision: Union[str, Sequence[str], None] = "9dde320bbb20"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -28,29 +29,27 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     op.add_column(
-        'contratos',
+        "contratos",
         sa.Column(
-            'cancelado',
+            "cancelado",
             sa.Boolean(),
             server_default=sa.false(),
             nullable=False,
         ),
     )
     # Conservar las cancelaciones; el resto del estado se deduce.
-    op.execute(
-        "UPDATE contratos SET cancelado = TRUE WHERE estado = 'Cancelado'"
-    )
-    op.drop_column('contratos', 'estado')
+    op.execute("UPDATE contratos SET cancelado = TRUE WHERE estado = 'Cancelado'")
+    op.drop_column("contratos", "estado")
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     op.add_column(
-        'contratos',
+        "contratos",
         sa.Column(
-            'estado',
+            "estado",
             sa.String(length=30),
-            server_default='Activo',
+            server_default="Activo",
             nullable=False,
         ),
     )
@@ -63,9 +62,9 @@ def downgrade() -> None:
         "ELSE 'Activo' END"
     )
     op.alter_column(
-        'contratos',
-        'estado',
+        "contratos",
+        "estado",
         existing_type=sa.String(length=30),
         server_default=None,
     )
-    op.drop_column('contratos', 'cancelado')
+    op.drop_column("contratos", "cancelado")

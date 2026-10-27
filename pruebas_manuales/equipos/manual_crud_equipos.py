@@ -61,6 +61,7 @@ with SessionLocal() as session:
         print(f"Nombre: {equipo.nombre}")
         print(f"Estado: {equipo.estado_actual}")
 """
+
 from database.db import SessionLocal
 from crud.equipos import eliminar_equipo, obtener_equipo
 
@@ -69,19 +70,13 @@ from crud.equipos import eliminar_equipo, obtener_equipo
 ID_EQUIPO_PRUEBA = 26
 
 with SessionLocal() as session:
-    eliminado = eliminar_equipo(
-        session,
-        ID_EQUIPO_PRUEBA
-    )
+    eliminado = eliminar_equipo(session, ID_EQUIPO_PRUEBA)
 
     if eliminado:
         print("Equipo de prueba eliminado correctamente")
     else:
         print("No se encontró el equipo de prueba")
 
-    equipo = obtener_equipo(
-        session,
-        ID_EQUIPO_PRUEBA
-    )
+    equipo = obtener_equipo(session, ID_EQUIPO_PRUEBA)
 
     print(f"¿Sigue existiendo? {equipo is not None}")

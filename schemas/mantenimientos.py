@@ -5,11 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from schemas.validadores import rechazar_null
 
 
-TipoMantenimiento = Literal[
-    "Preventivo",
-    "Predictivo",
-    "Correctivo"
-]
+TipoMantenimiento = Literal["Preventivo", "Predictivo", "Correctivo"]
 
 
 class MantenimientoCreate(BaseModel):

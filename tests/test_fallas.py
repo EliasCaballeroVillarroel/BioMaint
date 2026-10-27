@@ -21,12 +21,15 @@ CAMPOS_FALLA = {
 def crear_falla_api(cliente, equipo_prueba):
     # Crea una falla abierta sobre el equipo de prueba.
     def crear(**datos):
-        respuesta = cliente.post("/fallas", json={
-            "equipo_id": equipo_prueba["id"],
-            "tipo_falla": "Electrica",
-            "fecha_falla": "2025-03-10",
-            **datos,
-        })
+        respuesta = cliente.post(
+            "/fallas",
+            json={
+                "equipo_id": equipo_prueba["id"],
+                "tipo_falla": "Electrica",
+                "fecha_falla": "2025-03-10",
+                **datos,
+            },
+        )
         assert respuesta.status_code == 201, respuesta.json()
         return respuesta.json()
 
@@ -34,17 +37,21 @@ def crear_falla_api(cliente, equipo_prueba):
 
 
 def crear_mantenimiento_api(cliente, falla, fecha):
-    respuesta = cliente.post("/mantenimientos", json={
-        "equipo_id": falla["equipo_id"],
-        "falla_id": falla["id"],
-        "fecha": fecha,
-        "tipo_mantenimiento": "Correctivo",
-    })
+    respuesta = cliente.post(
+        "/mantenimientos",
+        json={
+            "equipo_id": falla["equipo_id"],
+            "falla_id": falla["id"],
+            "fecha": fecha,
+            "tipo_mantenimiento": "Correctivo",
+        },
+    )
     assert respuesta.status_code == 201, respuesta.json()
     return respuesta.json()
 
 
 # --- Crear ---
+
 
 def test_crear_falla_valida_devuelve_formato_esperado(
     cliente,
@@ -87,11 +94,14 @@ def test_crear_falla_acepta_cada_severidad(crear_falla_api, severidad):
 
 
 def test_crear_falla_con_equipo_inexistente_devuelve_404(cliente):
-    respuesta = cliente.post("/fallas", json={
-        "equipo_id": 999999,
-        "tipo_falla": "Electrica",
-        "fecha_falla": "2025-03-10",
-    })
+    respuesta = cliente.post(
+        "/fallas",
+        json={
+            "equipo_id": 999999,
+            "tipo_falla": "Electrica",
+            "fecha_falla": "2025-03-10",
+        },
+    )
 
     assert respuesta.status_code == 404
     assert respuesta.json() == {"detail": "No existe un equipo con ID 999999."}
@@ -103,11 +113,14 @@ def test_crear_falla_en_equipo_dado_de_baja_devuelve_409(
 ):
     cliente.post(f"/equipos/{equipo_prueba['id']}/baja")
 
-    respuesta = cliente.post("/fallas", json={
-        "equipo_id": equipo_prueba["id"],
-        "tipo_falla": "Electrica",
-        "fecha_falla": "2025-03-10",
-    })
+    respuesta = cliente.post(
+        "/fallas",
+        json={
+            "equipo_id": equipo_prueba["id"],
+            "tipo_falla": "Electrica",
+            "fecha_falla": "2025-03-10",
+        },
+    )
 
     assert respuesta.status_code == 409
     assert respuesta.json() == {
@@ -160,6 +173,7 @@ def test_crear_falla_con_fecha_de_hoy(crear_falla_api):
 
 # --- Listar y consultar ---
 
+
 def test_listar_fallas_incluye_falla_creada(cliente, crear_falla_api):
     falla = crear_falla_api()
 
@@ -203,16 +217,22 @@ def test_listar_fallas_de_equipo_ordenadas_por_fecha_descendente(
 ):
     antigua = crear_falla_api(fecha_falla="2024-01-10")
     reciente = crear_falla_api(fecha_falla="2025-06-01")
-    otro_equipo = cliente.post("/equipos", json={
-        "nombre": "Otro equipo",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-    }).json()
-    cliente.post("/fallas", json={
-        "equipo_id": otro_equipo["id"],
-        "tipo_falla": "Ajena",
-        "fecha_falla": "2025-01-01",
-    })
+    otro_equipo = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Otro equipo",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+        },
+    ).json()
+    cliente.post(
+        "/fallas",
+        json={
+            "equipo_id": otro_equipo["id"],
+            "tipo_falla": "Ajena",
+            "fecha_falla": "2025-01-01",
+        },
+    )
 
     respuesta = cliente.get(f"/equipos/{equipo_prueba['id']}/fallas")
 
@@ -228,6 +248,7 @@ def test_listar_fallas_de_equipo_inexistente_devuelve_404(cliente):
 
 
 # --- Actualizar ---
+
 
 @pytest.mark.parametrize(
     "cambios",
@@ -394,6 +415,7 @@ def test_fecha_de_falla_no_puede_quedar_despues_de_su_mantenimiento(
 
 
 # --- Eliminar ---
+
 
 def test_eliminar_falla_abierta_sin_mantenimientos(cliente, crear_falla_api):
     falla = crear_falla_api()

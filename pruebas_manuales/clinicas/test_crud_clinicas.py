@@ -1,10 +1,5 @@
-
 from database.db import SessionLocal
-from crud.clinicas import (
-    listar_clinicas,
-    obtener_clinica,
-    listar_ubicaciones_clinica
-)
+from crud.clinicas import listar_clinicas, obtener_clinica, listar_ubicaciones_clinica
 
 
 with SessionLocal() as session:
@@ -26,15 +21,9 @@ with SessionLocal() as session:
     if clinica is not None:
         print(f"Encontrada: {clinica.nombre}")
 
-        ubicaciones = listar_ubicaciones_clinica(
-            session,
-            clinica.id
-        )
+        ubicaciones = listar_ubicaciones_clinica(session, clinica.id)
 
         for ubicacion in ubicaciones:
-            print(
-                f"- {ubicacion.servicio} | "
-                f"Sector: {ubicacion.sector}"
-            )
+            print(f"- {ubicacion.servicio} | Sector: {ubicacion.sector}")
     else:
         print("No existe la clínica con ID 1")

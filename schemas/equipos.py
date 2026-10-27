@@ -11,15 +11,14 @@ class EquipoCreate(BaseModel):
     tipo: str | None = Field(default=None, max_length=100)
     modelo: str | None = Field(default=None, max_length=100)
     marca: str | None = Field(default=None, max_length=100)
-    numero_serie: str | None = Field(
-        default=None, min_length=1, max_length=100
-    )
+    numero_serie: str | None = Field(default=None, min_length=1, max_length=100)
 
     # La baja tiene su propio endpoint.
     @field_validator("estado_actual")
     @classmethod
     def validar_estado(cls, estado):
         return rechazar_dado_de_baja(estado)
+
 
 class EquipoUpdate(BaseModel):
     nombre: str | None = Field(default=None, min_length=1, max_length=100)
@@ -29,9 +28,7 @@ class EquipoUpdate(BaseModel):
     tipo: str | None = Field(default=None, max_length=100)
     modelo: str | None = Field(default=None, max_length=100)
     marca: str | None = Field(default=None, max_length=100)
-    numero_serie: str | None = Field(
-        default=None, min_length=1, max_length=100
-    )
+    numero_serie: str | None = Field(default=None, min_length=1, max_length=100)
 
     # Los campos obligatorios pueden omitirse, pero no enviarse como null.
     # (El validador solo corre si el campo viene en el body.)
@@ -44,6 +41,7 @@ class EquipoUpdate(BaseModel):
     @classmethod
     def validar_estado(cls, estado):
         return rechazar_dado_de_baja(estado)
+
 
 class EquipoResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

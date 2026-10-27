@@ -24,9 +24,7 @@ url_pruebas = URL.create(
 )
 
 if url_pruebas.database != "biomaint_test":
-    raise RuntimeError(
-        "Seguridad: los tests deben usar exclusivamente biomaint_test."
-    )
+    raise RuntimeError("Seguridad: los tests deben usar exclusivamente biomaint_test.")
 
 engine_pruebas = create_engine(
     url_pruebas,

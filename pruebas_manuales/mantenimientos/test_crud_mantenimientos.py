@@ -1,9 +1,8 @@
-
 from database.db import SessionLocal
 from crud.mantenimientos import (
     listar_mantenimientos,
     obtener_mantenimiento,
-    listar_mantenimientos_equipo
+    listar_mantenimientos_equipo,
 )
 
 
@@ -50,7 +49,4 @@ with SessionLocal() as session:
         print("No existe el equipo con ID 1")
     else:
         for mantenimiento in historial:
-            print(
-                f"- {mantenimiento.fecha} | "
-                f"{mantenimiento.tipo_mantenimiento}"
-            )
+            print(f"- {mantenimiento.fecha} | {mantenimiento.tipo_mantenimiento}")

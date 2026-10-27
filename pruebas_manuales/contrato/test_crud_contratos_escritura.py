@@ -1,12 +1,7 @@
-
 from datetime import date, timedelta
 
 from database.db import SessionLocal
-from crud.contratos import (
-    crear_contrato,
-    actualizar_contrato,
-    eliminar_contrato
-)
+from crud.contratos import crear_contrato, actualizar_contrato, eliminar_contrato
 
 with SessionLocal() as session:
     contrato_id = None
@@ -20,7 +15,7 @@ with SessionLocal() as session:
             fecha_inicio=date.today(),
             estado="Activo",
             empresa="Empresa de prueba",
-            fecha_fin=date.today() + timedelta(days=365)
+            fecha_fin=date.today() + timedelta(days=365),
         )
 
         contrato_id = contrato.id
@@ -40,7 +35,7 @@ with SessionLocal() as session:
             contrato_id=contrato_id,
             tipo_contrato="CONTRATO ACTUALIZADO CRUD",
             empresa="Empresa actualizada",
-            estado="Finalizado"
+            estado="Finalizado",
         )
 
         print("\n=== CONTRATO ACTUALIZADO ===")
@@ -58,10 +53,7 @@ with SessionLocal() as session:
         if contrato_id is not None:
             session.rollback()
 
-            eliminado = eliminar_contrato(
-                session,
-                contrato_id
-            )
+            eliminado = eliminar_contrato(session, contrato_id)
 
             print("\n=== LIMPIEZA ===")
             print(f"¿Se eliminó el contrato de prueba?: {eliminado}")

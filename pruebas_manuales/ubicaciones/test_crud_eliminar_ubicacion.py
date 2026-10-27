@@ -1,9 +1,5 @@
-
 from database.db import SessionLocal
-from crud.ubicaciones import (
-    eliminar_ubicacion,
-    obtener_ubicacion
-)
+from crud.ubicaciones import eliminar_ubicacion, obtener_ubicacion
 
 
 # Reemplazar por el ID real de la ubicación de prueba.
@@ -14,25 +10,13 @@ with SessionLocal() as session:
         print("Primero ingresá el ID real de la ubicación de prueba.")
 
     else:
-        eliminada = eliminar_ubicacion(
-            session,
-            ID_UBICACION_PRUEBA
-        )
+        eliminada = eliminar_ubicacion(session, ID_UBICACION_PRUEBA)
 
         if eliminada:
             print("Ubicación de prueba eliminada.")
         else:
-            print(
-                "No se eliminó. Verificá el ID "
-                "y que no tenga equipos asociados."
-            )
+            print("No se eliminó. Verificá el ID y que no tenga equipos asociados.")
 
-        ubicacion = obtener_ubicacion(
-            session,
-            ID_UBICACION_PRUEBA
-        )
+        ubicacion = obtener_ubicacion(session, ID_UBICACION_PRUEBA)
 
-        print(
-            "¿Sigue existiendo?",
-            ubicacion is not None
-        )
+        print("¿Sigue existiendo?", ubicacion is not None)

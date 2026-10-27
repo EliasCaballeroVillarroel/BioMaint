@@ -18,7 +18,7 @@ from routers.contratos import router as contratos_router
 app = FastAPI(
     title="BioMaint API",
     description="API para gestionar equipos médicos y su mantenimiento.",
-    version="0.1.0"
+    version="0.1.0",
 )
 
 app.include_router(equipos_router)
@@ -40,9 +40,7 @@ CODIGOS_POR_ERROR = {
 def manejar_error_negocio(request: Request, exc: Exception):
     # isinstance y no type(): incluye subclases como NumeroSerieDuplicadoError.
     codigo = next(
-        codigo
-        for clase, codigo in CODIGOS_POR_ERROR.items()
-        if isinstance(exc, clase)
+        codigo for clase, codigo in CODIGOS_POR_ERROR.items() if isinstance(exc, clase)
     )
     return JSONResponse(status_code=codigo, content={"detail": str(exc)})
 
@@ -52,10 +50,7 @@ for clase_error in CODIGOS_POR_ERROR:
 
 
 @app.exception_handler(IntegrityError)
-async def manejar_error_integridad(
-    request: Request,
-    exc: IntegrityError
-):
+async def manejar_error_integridad(request: Request, exc: IntegrityError):
     return JSONResponse(
         status_code=409,
         content={
@@ -63,21 +58,15 @@ async def manejar_error_integridad(
                 "La operación no se pudo completar porque "
                 "viola una restricción de integridad de la base de datos."
             )
-        }
+        },
     )
 
 
 @app.get("/")
 def inicio():
-    return {
-        "mensaje": "Bienvenido a BioMaint API",
-        "estado": "funcionando"
-    }
+    return {"mensaje": "Bienvenido a BioMaint API", "estado": "funcionando"}
 
 
 @app.get("/salud")
 def verificar_estado():
-    return {
-        "api": "activa",
-        "base_de_datos": "sin verificar"
-    }
+    return {"api": "activa", "base_de_datos": "sin verificar"}

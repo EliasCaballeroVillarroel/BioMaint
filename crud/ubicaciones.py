@@ -7,8 +7,7 @@ from models import Clinica, Ubicacion
 
 
 def listar_ubicaciones(
-    session: Session,
-    incluir_inactivas: bool = False
+    session: Session, incluir_inactivas: bool = False
 ) -> list[Ubicacion]:
     stmt = select(Ubicacion).order_by(Ubicacion.id)
 
@@ -18,17 +17,12 @@ def listar_ubicaciones(
     return list(session.scalars(stmt).all())
 
 
-def obtener_ubicacion(
-    session: Session,
-    ubicacion_id: int
-) -> Ubicacion | None:
+def obtener_ubicacion(session: Session, ubicacion_id: int) -> Ubicacion | None:
     return session.get(Ubicacion, ubicacion_id)
 
 
 def verificar_clinica_activa(
-    session: Session,
-    clinica_id: int,
-    mensaje_inactiva: str
+    session: Session, clinica_id: int, mensaje_inactiva: str
 ) -> None:
     clinica = session.get(Clinica, clinica_id)
 
@@ -45,20 +39,16 @@ def crear_ubicacion(
     servicio: str | None = None,
     sector: str | None = None,
     piso: str | None = None,
-    sala: str | None = None
+    sala: str | None = None,
 ) -> Ubicacion:
     verificar_clinica_activa(
         session,
         clinica_id,
-        "No se pueden crear ubicaciones en una clínica dada de baja."
+        "No se pueden crear ubicaciones en una clínica dada de baja.",
     )
 
     ubicacion = Ubicacion(
-        clinica_id=clinica_id,
-        servicio=servicio,
-        sector=sector,
-        piso=piso,
-        sala=sala
+        clinica_id=clinica_id, servicio=servicio, sector=sector, piso=piso, sala=sala
     )
 
     session.add(ubicacion)
@@ -76,7 +66,7 @@ def actualizar_ubicacion(
     servicio: str | None = None,
     sector: str | None = None,
     piso: str | None = None,
-    sala: str | None = None
+    sala: str | None = None,
 ) -> Ubicacion | None:
     ubicacion = session.get(Ubicacion, ubicacion_id)
 
@@ -85,15 +75,13 @@ def actualizar_ubicacion(
 
     # Se reactiva solo junto con su clínica (POST /clinicas/{id}/reactivar).
     if not ubicacion.activa:
-        raise ConflictoError(
-            "No se puede modificar una ubicación dada de baja."
-        )
+        raise ConflictoError("No se puede modificar una ubicación dada de baja.")
 
     if clinica_id is not None:
         verificar_clinica_activa(
             session,
             clinica_id,
-            "No se puede mover una ubicación a una clínica dada de baja."
+            "No se puede mover una ubicación a una clínica dada de baja.",
         )
         ubicacion.clinica_id = clinica_id
 
@@ -115,10 +103,7 @@ def actualizar_ubicacion(
     return ubicacion
 
 
-def eliminar_ubicacion(
-    session: Session,
-    ubicacion_id: int
-) -> bool:
+def eliminar_ubicacion(session: Session, ubicacion_id: int) -> bool:
     ubicacion = session.get(Ubicacion, ubicacion_id)
 
     if ubicacion is None:
@@ -136,10 +121,7 @@ def eliminar_ubicacion(
     return True
 
 
-def listar_equipos_ubicacion(
-    session: Session,
-    ubicacion_id: int
-):
+def listar_equipos_ubicacion(session: Session, ubicacion_id: int):
     ubicacion = session.get(Ubicacion, ubicacion_id)
 
     if ubicacion is None:

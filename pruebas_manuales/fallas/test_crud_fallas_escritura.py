@@ -1,12 +1,7 @@
-
 from datetime import date
 
 from database.db import SessionLocal
-from crud.fallas import (
-    crear_falla,
-    actualizar_falla,
-    obtener_falla
-)
+from crud.fallas import crear_falla, actualizar_falla, obtener_falla
 
 
 with SessionLocal() as session:
@@ -16,7 +11,7 @@ with SessionLocal() as session:
         tipo_falla="FALLA DE PRUEBA CRUD",
         fecha_falla=date.today(),
         descripcion_falla="Registro temporal para probar el CRUD",
-        severidad="BAJA"
+        severidad="BAJA",
     )
 
     falla_id = falla.id
@@ -30,7 +25,7 @@ with SessionLocal() as session:
     falla_actualizada = actualizar_falla(
         session=session,
         falla_id=falla_id,
-        descripcion_falla="Descripción actualizada de prueba"
+        descripcion_falla="Descripción actualizada de prueba",
     )
 
     print("\n=== FALLA ACTUALIZADA ===")

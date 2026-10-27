@@ -5,7 +5,6 @@ from models.equipos import Equipo
 
 
 with SessionLocal() as session:
-
     stmt = select(Equipo).where(Equipo.id == 26)
 
     equipo = session.scalar(stmt)

@@ -97,9 +97,7 @@ def eliminar(
     if not eliminada:
         raise no_existe("una falla", falla_id)
 
-    return {
-        "mensaje": f"La falla con ID {falla_id} fue eliminada correctamente."
-    }
+    return {"mensaje": f"La falla con ID {falla_id} fue eliminada correctamente."}
 
 
 @router.get(

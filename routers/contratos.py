@@ -22,24 +22,13 @@ from crud.contratos import (
 router = APIRouter(tags=["Contratos"])
 
 
-@router.get(
-    "/contratos",
-    response_model=list[ContratoResponse]
-)
-def listar(
-    session: Session = Depends(obtener_sesion)
-):
+@router.get("/contratos", response_model=list[ContratoResponse])
+def listar(session: Session = Depends(obtener_sesion)):
     return listar_contratos(session)
 
 
-@router.get(
-    "/contratos/{contrato_id}",
-    response_model=ContratoResponse
-)
-def obtener(
-    contrato_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+@router.get("/contratos/{contrato_id}", response_model=ContratoResponse)
+def obtener(contrato_id: int, session: Session = Depends(obtener_sesion)):
     contrato = obtener_contrato(session, contrato_id)
 
     if contrato is None:
@@ -49,14 +38,9 @@ def obtener(
 
 
 @router.post(
-    "/contratos",
-    response_model=ContratoResponse,
-    status_code=status.HTTP_201_CREATED
+    "/contratos", response_model=ContratoResponse, status_code=status.HTTP_201_CREATED
 )
-def crear(
-    datos: ContratoCreate,
-    session: Session = Depends(obtener_sesion)
-):
+def crear(datos: ContratoCreate, session: Session = Depends(obtener_sesion)):
     return crear_contrato(
         session=session,
         equipo_id=datos.equipo_id,
@@ -67,14 +51,9 @@ def crear(
     )
 
 
-@router.put(
-    "/contratos/{contrato_id}",
-    response_model=ContratoResponse
-)
+@router.put("/contratos/{contrato_id}", response_model=ContratoResponse)
 def actualizar(
-    contrato_id: int,
-    datos: ContratoUpdate,
-    session: Session = Depends(obtener_sesion)
+    contrato_id: int, datos: ContratoUpdate, session: Session = Depends(obtener_sesion)
 ):
     cambios = datos.model_dump(exclude_unset=True)
 
@@ -95,28 +74,16 @@ def actualizar(
     return contrato
 
 
-@router.delete(
-    "/contratos/{contrato_id}",
-    status_code=status.HTTP_204_NO_CONTENT
-)
-def eliminar(
-    contrato_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+@router.delete("/contratos/{contrato_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar(contrato_id: int, session: Session = Depends(obtener_sesion)):
     if not eliminar_contrato(session, contrato_id):
         raise no_existe("un contrato", contrato_id)
 
     return None
 
 
-@router.post(
-    "/contratos/{contrato_id}/cancelar",
-    response_model=ContratoResponse
-)
-def cancelar(
-    contrato_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+@router.post("/contratos/{contrato_id}/cancelar", response_model=ContratoResponse)
+def cancelar(contrato_id: int, session: Session = Depends(obtener_sesion)):
     contrato = cancelar_contrato(session, contrato_id)
 
     if contrato is None:
@@ -125,14 +92,8 @@ def cancelar(
     return contrato
 
 
-@router.get(
-    "/equipos/{equipo_id}/contratos",
-    response_model=list[ContratoResponse]
-)
-def listar_por_equipo(
-    equipo_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+@router.get("/equipos/{equipo_id}/contratos", response_model=list[ContratoResponse])
+def listar_por_equipo(equipo_id: int, session: Session = Depends(obtener_sesion)):
     contratos = listar_contratos_equipo(session, equipo_id)
 
     if contratos is None:

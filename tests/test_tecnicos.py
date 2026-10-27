@@ -6,12 +6,15 @@ CAMPOS_TECNICO = {"id", "nombre", "apellido", "empresa"}
 @pytest.fixture
 def crear_mantenimiento(cliente, equipo_prueba):
     def crear(**datos):
-        respuesta = cliente.post("/mantenimientos", json={
-            "equipo_id": equipo_prueba["id"],
-            "fecha": "2025-04-01",
-            "tipo_mantenimiento": "Preventivo",
-            **datos,
-        })
+        respuesta = cliente.post(
+            "/mantenimientos",
+            json={
+                "equipo_id": equipo_prueba["id"],
+                "fecha": "2025-04-01",
+                "tipo_mantenimiento": "Preventivo",
+                **datos,
+            },
+        )
         assert respuesta.status_code == 201, respuesta.json()
         return respuesta.json()
 
@@ -27,6 +30,7 @@ def asignar(cliente, mantenimiento, tecnico):
 
 
 # --- CRUD de técnicos ---
+
 
 def test_crear_tecnico_valido_devuelve_formato_esperado(crear_tecnico_api):
     datos = {"nombre": "Ana", "apellido": "Gomez", "empresa": "Siemens"}
@@ -197,6 +201,7 @@ def test_eliminar_tecnico_inexistente_devuelve_404(cliente):
 
 # --- Asignaciones a mantenimientos ---
 
+
 def test_listar_mantenimientos_de_tecnico(
     cliente,
     crear_tecnico_api,
@@ -291,9 +296,7 @@ def test_desasignar_tecnico_de_mantenimiento_con_resultado_devuelve_409(
             "con resultado registrado: forma parte del historial."
         )
     }
-    assert cliente.get(
-        f"/mantenimientos/{mantenimiento['id']}"
-    ).json() == asignado
+    assert cliente.get(f"/mantenimientos/{mantenimiento['id']}").json() == asignado
 
 
 def test_desasignar_tecnico_inexistente_devuelve_404(
@@ -302,9 +305,7 @@ def test_desasignar_tecnico_inexistente_devuelve_404(
 ):
     mantenimiento = crear_mantenimiento()
 
-    respuesta = cliente.delete(
-        f"/mantenimientos/{mantenimiento['id']}/tecnicos/999999"
-    )
+    respuesta = cliente.delete(f"/mantenimientos/{mantenimiento['id']}/tecnicos/999999")
 
     assert respuesta.status_code == 404
     assert respuesta.json() == {"detail": "No existe un técnico con ID 999999."}
@@ -319,6 +320,4 @@ def test_desasignar_de_mantenimiento_inexistente_devuelve_404(
     respuesta = cliente.delete(f"/mantenimientos/999999/tecnicos/{tecnico['id']}")
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe un mantenimiento con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe un mantenimiento con ID 999999."}

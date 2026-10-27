@@ -1,17 +1,10 @@
-
 from database.db import SessionLocal
-from crud.clinicas import (
-    crear_clinica,
-    actualizar_clinica,
-    obtener_clinica
-)
+from crud.clinicas import crear_clinica, actualizar_clinica, obtener_clinica
 
 
 with SessionLocal() as session:
     clinica = crear_clinica(
-        session=session,
-        nombre="CLINICA PRUEBA CRUD",
-        direccion="Direccion de prueba"
+        session=session, nombre="CLINICA PRUEBA CRUD", direccion="Direccion de prueba"
     )
 
     clinica_id = clinica.id
@@ -23,7 +16,7 @@ with SessionLocal() as session:
     clinica_actualizada = actualizar_clinica(
         session=session,
         clinica_id=clinica_id,
-        direccion="Direccion actualizada de prueba"
+        direccion="Direccion actualizada de prueba",
     )
 
     print("\n=== CLÍNICA ACTUALIZADA ===")
@@ -34,12 +27,6 @@ with SessionLocal() as session:
         print(f"Dirección: {clinica_actualizada.direccion}")
 
     # Verificamos que siga existiendo en la base de datos.
-    clinica_verificada = obtener_clinica(
-        session,
-        clinica_id
-    )
+    clinica_verificada = obtener_clinica(session, clinica_id)
 
-    print(
-        "\n¿Existe en la base de datos?",
-        clinica_verificada is not None
-    )
+    print("\n¿Existe en la base de datos?", clinica_verificada is not None)

@@ -5,7 +5,6 @@ from models import Equipo, Ubicacion, Falla, Mantenimiento
 
 
 with SessionLocal() as session:
-
     stmt = select(Mantenimiento).limit(5)
     mantenimientos = session.scalars(stmt).all()
 

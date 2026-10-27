@@ -9,24 +9,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from models.mantenimientos import Mantenimiento
 
+
 class Tecnico(Base):
     __tablename__ = "tecnicos"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    nombre: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False
-    )
+    nombre: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    apellido: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False
-    )
+    apellido: Mapped[str] = mapped_column(String(100), nullable=False)
 
     empresa: Mapped[str | None] = mapped_column(String(100))
 
     mantenimientos: Mapped[list["Mantenimiento"]] = relationship(
-        secondary="mantenimiento_tecnicos",
-        back_populates="tecnicos"
+        secondary="mantenimiento_tecnicos", back_populates="tecnicos"
     )

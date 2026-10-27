@@ -11,7 +11,6 @@ from models import (
 
 
 with SessionLocal() as session:
-
     stmt = select(Mantenimiento).limit(5)
     mantenimientos = session.scalars(stmt).all()
 

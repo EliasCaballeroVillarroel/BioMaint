@@ -3,6 +3,7 @@ import pytest
 
 # --- Listar ---
 
+
 def test_listar_clinicas_incluye_clinica_creada(
     cliente,
     crear_clinica_api,
@@ -30,6 +31,7 @@ def test_listar_clinicas_sin_registros_devuelve_lista_vacia(
 
 # --- Consultar ---
 
+
 def test_consultar_clinica_existente(cliente, crear_clinica_api):
     creada = crear_clinica_api(nombre="Clinica para consulta").json()
 
@@ -43,12 +45,11 @@ def test_consultar_clinica_inexistente_devuelve_404(cliente):
     respuesta = cliente.get("/clinicas/999999")
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe una clínica con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe una clínica con ID 999999."}
 
 
 # --- Crear ---
+
 
 def test_crear_clinica_valida_devuelve_formato_esperado(
     crear_clinica_api,
@@ -101,6 +102,7 @@ def test_crear_clinica_con_datos_invalidos_devuelve_422(cliente, datos):
 
 
 # --- Actualizar ---
+
 
 @pytest.mark.parametrize(
     "cambios",
@@ -171,6 +173,7 @@ def test_actualizar_clinica_con_datos_invalidos_no_modifica_datos(
 
 # --- Eliminar ---
 
+
 def test_eliminar_clinica_sin_dependencias(cliente, crear_clinica_api):
     creada = crear_clinica_api(nombre="Clinica a eliminar").json()
 
@@ -178,9 +181,7 @@ def test_eliminar_clinica_sin_dependencias(cliente, crear_clinica_api):
 
     assert respuesta.status_code == 200
     assert respuesta.json() == {
-        "mensaje": (
-            f"La clínica con ID {creada['id']} fue eliminada correctamente."
-        )
+        "mensaje": (f"La clínica con ID {creada['id']} fue eliminada correctamente.")
     }
     assert cliente.get(f"/clinicas/{creada['id']}").status_code == 404
 
@@ -213,6 +214,7 @@ def test_eliminar_clinica_con_ubicaciones_devuelve_409(
 
 
 # --- Baja lógica ---
+
 
 def test_dar_de_baja_clinica_inactiva_clinica_y_ubicaciones(
     cliente,
@@ -304,10 +306,13 @@ def test_crear_ubicacion_en_clinica_dada_de_baja_devuelve_409(
     creada = crear_clinica_api(nombre="Clinica retirada").json()
     cliente.post(f"/clinicas/{creada['id']}/baja")
 
-    respuesta = cliente.post("/ubicaciones", json={
-        "clinica_id": creada["id"],
-        "servicio": "No deberia crearse",
-    })
+    respuesta = cliente.post(
+        "/ubicaciones",
+        json={
+            "clinica_id": creada["id"],
+            "servicio": "No deberia crearse",
+        },
+    )
 
     assert respuesta.status_code == 409
 
@@ -332,6 +337,7 @@ def test_mover_ubicacion_a_clinica_dada_de_baja_devuelve_409(
 
 
 # --- Reactivar ---
+
 
 def test_reactivar_clinica_reactiva_clinica_y_ubicaciones(
     cliente,

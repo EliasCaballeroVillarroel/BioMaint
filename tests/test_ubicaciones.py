@@ -12,17 +12,21 @@ CAMPOS_UBICACION = {
 
 
 def crear_equipo_api(cliente, ubicacion_id, numero_serie):
-    respuesta = cliente.post("/equipos", json={
-        "nombre": "Equipo asociado",
-        "ubicacion_id": ubicacion_id,
-        "estado_actual": "activo",
-        "numero_serie": numero_serie,
-    })
+    respuesta = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Equipo asociado",
+            "ubicacion_id": ubicacion_id,
+            "estado_actual": "activo",
+            "numero_serie": numero_serie,
+        },
+    )
     assert respuesta.status_code == 201
     return respuesta.json()
 
 
 # --- Listar y consultar ---
+
 
 def test_listar_ubicaciones_incluye_ubicacion_creada(
     cliente,
@@ -82,12 +86,11 @@ def test_consultar_ubicacion_inexistente_devuelve_404(cliente):
     respuesta = cliente.get("/ubicaciones/999999")
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe una ubicación con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe una ubicación con ID 999999."}
 
 
 # --- Crear ---
+
 
 def test_crear_ubicacion_valida_devuelve_formato_esperado(
     cliente,
@@ -122,7 +125,10 @@ def test_crear_ubicacion_solo_con_clinica(cliente, crear_clinica_api):
     assert respuesta.status_code == 201
     creada = respuesta.json()
     assert [creada[c] for c in ("servicio", "sector", "piso", "sala")] == [
-        None, None, None, None
+        None,
+        None,
+        None,
+        None,
     ]
 
 
@@ -133,9 +139,7 @@ def test_crear_ubicacion_con_clinica_inexistente_devuelve_404(cliente):
     )
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe una clínica con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe una clínica con ID 999999."}
 
 
 def test_crear_ubicacion_con_valores_limite(crear_ubicacion_api):
@@ -195,6 +199,7 @@ def test_crear_ubicacion_con_clinica_invalida_devuelve_422(cliente, datos):
 
 
 # --- Actualizar ---
+
 
 @pytest.mark.parametrize(
     "cambios",
@@ -336,6 +341,7 @@ def test_mover_ubicacion_dada_de_baja_a_clinica_activa_devuelve_409(
 
 # --- Eliminar ---
 
+
 def test_eliminar_ubicacion_sin_equipos(cliente, crear_ubicacion_api):
     ubicacion = crear_ubicacion_api()
 
@@ -344,8 +350,7 @@ def test_eliminar_ubicacion_sin_equipos(cliente, crear_ubicacion_api):
     assert respuesta.status_code == 200
     assert respuesta.json() == {
         "mensaje": (
-            f"La ubicación con ID {ubicacion['id']} "
-            "fue eliminada correctamente."
+            f"La ubicación con ID {ubicacion['id']} fue eliminada correctamente."
         )
     }
     assert cliente.get(f"/ubicaciones/{ubicacion['id']}").status_code == 404
@@ -362,9 +367,7 @@ def test_eliminar_ubicacion_con_equipos_devuelve_409(
 
     assert respuesta.status_code == 409
     assert respuesta.json() == {
-        "detail": (
-            "No se puede eliminar la ubicación porque tiene equipos asociados."
-        )
+        "detail": ("No se puede eliminar la ubicación porque tiene equipos asociados.")
     }
     assert cliente.get(f"/ubicaciones/{ubicacion['id']}").json() == ubicacion
 
@@ -373,12 +376,11 @@ def test_eliminar_ubicacion_inexistente_devuelve_404(cliente):
     respuesta = cliente.delete("/ubicaciones/999999")
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe una ubicación con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe una ubicación con ID 999999."}
 
 
 # --- Relación con equipos ---
+
 
 def test_listar_equipos_de_ubicacion(cliente, crear_ubicacion_api):
     ubicacion = crear_ubicacion_api()
@@ -412,6 +414,4 @@ def test_listar_equipos_de_ubicacion_inexistente_devuelve_404(cliente):
     respuesta = cliente.get("/ubicaciones/999999/equipos")
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe una ubicación con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe una ubicación con ID 999999."}

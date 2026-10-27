@@ -47,20 +47,47 @@ NORMALIZACIONES = [
     "WHERE tipo_mantenimiento = 'CORRECTIVO'",
     # Mismas sentencias que la migración 9dde320bbb20 (se copian en vez
     # de importarse: una migración es una foto fija y no debe cambiar).
-    "UPDATE fallas SET severidad = LOWER(TRIM(severidad)) "
-    "WHERE severidad IS NOT NULL",
+    "UPDATE fallas SET severidad = LOWER(TRIM(severidad)) WHERE severidad IS NOT NULL",
     "UPDATE fallas SET severidad = 'critica' WHERE severidad = 'crítica'",
 ]
 
 # (numero_serie del equipo, tipo, empresa, inicio, fin, cancelado).
 # El estado se calcula con las fechas: hoy hay activos, vencidos y uno pendiente.
 CONTRATOS_EJEMPLO = [
-    ("SN-RES-001", "Mantenimiento integral", "Siemens", date(2024, 1, 1), date(2026, 12, 31), False),
-    ("SN-TC-001", "Mantenimiento integral", "Siemens", date(2023, 5, 1), date(2025, 4, 30), False),
-    ("SN-TC-001", "Mantenimiento integral", "Siemens", date(2025, 5, 1), date(2027, 4, 30), False),
+    (
+        "SN-RES-001",
+        "Mantenimiento integral",
+        "Siemens",
+        date(2024, 1, 1),
+        date(2026, 12, 31),
+        False,
+    ),
+    (
+        "SN-TC-001",
+        "Mantenimiento integral",
+        "Siemens",
+        date(2023, 5, 1),
+        date(2025, 4, 30),
+        False,
+    ),
+    (
+        "SN-TC-001",
+        "Mantenimiento integral",
+        "Siemens",
+        date(2025, 5, 1),
+        date(2027, 4, 30),
+        False,
+    ),
     ("SN-HEM-001", "Full risk", "Siemens", date(2024, 7, 1), date(2027, 6, 30), False),
     ("SN-HEM-002", "Preventivo", "Medrad", date(2024, 1, 1), date(2024, 12, 31), False),
-    ("SN-RAD-002", "Preventivo", "GE HealthCare", date(2025, 3, 1), date(2026, 2, 28), True),
+    (
+        "SN-RAD-002",
+        "Preventivo",
+        "GE HealthCare",
+        date(2025, 3, 1),
+        date(2026, 2, 28),
+        True,
+    ),
     ("SN-RAD-003", "Mantenimiento integral", "Siemens", date(2026, 11, 1), None, False),
 ]
 

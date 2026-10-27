@@ -1,4 +1,3 @@
-
 from database.db import SessionLocal
 from crud.clinicas import eliminar_clinica
 from crud.equipos import eliminar_equipo

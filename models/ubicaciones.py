@@ -8,15 +8,13 @@ if TYPE_CHECKING:
     from models.clinica import Clinica
     from models.equipos import Equipo
 
+
 class Ubicacion(Base):
     __tablename__ = "ubicaciones"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    clinica_id: Mapped[int] = mapped_column(
-        ForeignKey("clinicas.id"),
-        nullable=False
-    )
+    clinica_id: Mapped[int] = mapped_column(ForeignKey("clinicas.id"), nullable=False)
 
     servicio: Mapped[str | None] = mapped_column(String(100))
     sector: Mapped[str | None] = mapped_column(String(100))
@@ -25,15 +23,8 @@ class Ubicacion(Base):
 
     # Se inactiva en cascada al dar de baja su clínica.
     activa: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        default=True,
-        server_default=true()
+        Boolean, nullable=False, default=True, server_default=true()
     )
 
-    equipos: Mapped[list["Equipo"]] = relationship(
-        back_populates="ubicacion"
-    )
-    clinica: Mapped["Clinica"] = relationship(
-    back_populates="ubicaciones"
-    )
+    equipos: Mapped[list["Equipo"]] = relationship(back_populates="ubicacion")
+    clinica: Mapped["Clinica"] = relationship(back_populates="ubicaciones")

@@ -19,11 +19,14 @@ CAMPOS_MANTENIMIENTO = {
 
 @pytest.fixture
 def falla_prueba(cliente, equipo_prueba):
-    respuesta = cliente.post("/fallas", json={
-        "equipo_id": equipo_prueba["id"],
-        "tipo_falla": "Electrica",
-        "fecha_falla": "2025-03-10",
-    })
+    respuesta = cliente.post(
+        "/fallas",
+        json={
+            "equipo_id": equipo_prueba["id"],
+            "tipo_falla": "Electrica",
+            "fecha_falla": "2025-03-10",
+        },
+    )
     assert respuesta.status_code == 201
     return respuesta.json()
 
@@ -32,12 +35,15 @@ def falla_prueba(cliente, equipo_prueba):
 def crear_mantenimiento_api(cliente, equipo_prueba):
     # Por defecto crea un preventivo sobre el equipo de prueba.
     def crear(**datos):
-        respuesta = cliente.post("/mantenimientos", json={
-            "equipo_id": equipo_prueba["id"],
-            "fecha": "2025-04-01",
-            "tipo_mantenimiento": "Preventivo",
-            **datos,
-        })
+        respuesta = cliente.post(
+            "/mantenimientos",
+            json={
+                "equipo_id": equipo_prueba["id"],
+                "fecha": "2025-04-01",
+                "tipo_mantenimiento": "Preventivo",
+                **datos,
+            },
+        )
         assert respuesta.status_code == 201, respuesta.json()
         return respuesta.json()
 
@@ -45,6 +51,7 @@ def crear_mantenimiento_api(cliente, equipo_prueba):
 
 
 # --- Crear ---
+
 
 def test_crear_mantenimiento_preventivo_devuelve_formato_esperado(
     cliente,
@@ -113,11 +120,14 @@ def test_crear_mantenimiento_con_fecha_futura_para_planificar(
 
 
 def test_crear_mantenimiento_con_equipo_inexistente_devuelve_404(cliente):
-    respuesta = cliente.post("/mantenimientos", json={
-        "equipo_id": 999999,
-        "fecha": "2025-04-01",
-        "tipo_mantenimiento": "Preventivo",
-    })
+    respuesta = cliente.post(
+        "/mantenimientos",
+        json={
+            "equipo_id": 999999,
+            "fecha": "2025-04-01",
+            "tipo_mantenimiento": "Preventivo",
+        },
+    )
 
     assert respuesta.status_code == 404
     assert respuesta.json() == {"detail": "No existe un equipo con ID 999999."}
@@ -129,17 +139,18 @@ def test_crear_mantenimiento_en_equipo_dado_de_baja_devuelve_409(
 ):
     cliente.post(f"/equipos/{equipo_prueba['id']}/baja")
 
-    respuesta = cliente.post("/mantenimientos", json={
-        "equipo_id": equipo_prueba["id"],
-        "fecha": "2025-04-01",
-        "tipo_mantenimiento": "Preventivo",
-    })
+    respuesta = cliente.post(
+        "/mantenimientos",
+        json={
+            "equipo_id": equipo_prueba["id"],
+            "fecha": "2025-04-01",
+            "tipo_mantenimiento": "Preventivo",
+        },
+    )
 
     assert respuesta.status_code == 409
     assert respuesta.json() == {
-        "detail": (
-            "No se pueden registrar mantenimientos en un equipo dado de baja."
-        )
+        "detail": ("No se pueden registrar mantenimientos en un equipo dado de baja.")
     }
 
 
@@ -147,12 +158,15 @@ def test_crear_mantenimiento_con_falla_inexistente_devuelve_404(
     cliente,
     equipo_prueba,
 ):
-    respuesta = cliente.post("/mantenimientos", json={
-        "equipo_id": equipo_prueba["id"],
-        "falla_id": 999999,
-        "fecha": "2025-04-01",
-        "tipo_mantenimiento": "Correctivo",
-    })
+    respuesta = cliente.post(
+        "/mantenimientos",
+        json={
+            "equipo_id": equipo_prueba["id"],
+            "falla_id": 999999,
+            "fecha": "2025-04-01",
+            "tipo_mantenimiento": "Correctivo",
+        },
+    )
 
     assert respuesta.status_code == 404
     assert respuesta.json() == {"detail": "No existe una falla con ID 999999."}
@@ -163,18 +177,24 @@ def test_crear_mantenimiento_con_falla_de_otro_equipo_devuelve_422(
     ubicacion_prueba,
     falla_prueba,
 ):
-    otro_equipo = cliente.post("/equipos", json={
-        "nombre": "Otro equipo",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-    }).json()
+    otro_equipo = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Otro equipo",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+        },
+    ).json()
 
-    respuesta = cliente.post("/mantenimientos", json={
-        "equipo_id": otro_equipo["id"],
-        "falla_id": falla_prueba["id"],
-        "fecha": "2025-04-01",
-        "tipo_mantenimiento": "Correctivo",
-    })
+    respuesta = cliente.post(
+        "/mantenimientos",
+        json={
+            "equipo_id": otro_equipo["id"],
+            "falla_id": falla_prueba["id"],
+            "fecha": "2025-04-01",
+            "tipo_mantenimiento": "Correctivo",
+        },
+    )
 
     assert respuesta.status_code == 422
     assert respuesta.json() == {
@@ -251,12 +271,11 @@ def test_crear_mantenimiento_con_datos_invalidos_devuelve_422(
     respuesta = cliente.post("/mantenimientos", json=datos)
 
     assert respuesta.status_code == 422
-    assert cliente.get(
-        f"/equipos/{equipo_prueba['id']}/mantenimientos"
-    ).json() == []
+    assert cliente.get(f"/equipos/{equipo_prueba['id']}/mantenimientos").json() == []
 
 
 # --- Técnicos asignados ---
+
 
 def test_asignar_tecnicos_a_mantenimiento(
     cliente,
@@ -267,17 +286,13 @@ def test_asignar_tecnicos_a_mantenimiento(
     tecnico_a = crear_tecnico_api(nombre="Ana")
     tecnico_b = crear_tecnico_api(nombre="Bruno")
 
-    cliente.post(
-        f"/mantenimientos/{mantenimiento['id']}/tecnicos/{tecnico_b['id']}"
-    )
+    cliente.post(f"/mantenimientos/{mantenimiento['id']}/tecnicos/{tecnico_b['id']}")
     respuesta = cliente.post(
         f"/mantenimientos/{mantenimiento['id']}/tecnicos/{tecnico_a['id']}"
     )
 
     assert respuesta.status_code == 200
-    assert respuesta.json()["tecnico_ids"] == sorted(
-        [tecnico_a["id"], tecnico_b["id"]]
-    )
+    assert respuesta.json()["tecnico_ids"] == sorted([tecnico_a["id"], tecnico_b["id"]])
 
     asignados = cliente.get(f"/tecnicos/{tecnico_a['id']}/mantenimientos")
     assert [m["id"] for m in asignados.json()] == [mantenimiento["id"]]
@@ -305,9 +320,7 @@ def test_asignar_tecnico_inexistente_devuelve_404(
 ):
     mantenimiento = crear_mantenimiento_api()
 
-    respuesta = cliente.post(
-        f"/mantenimientos/{mantenimiento['id']}/tecnicos/999999"
-    )
+    respuesta = cliente.post(f"/mantenimientos/{mantenimiento['id']}/tecnicos/999999")
 
     assert respuesta.status_code == 404
     assert respuesta.json() == {"detail": "No existe un técnico con ID 999999."}
@@ -322,12 +335,11 @@ def test_asignar_tecnico_a_mantenimiento_inexistente_devuelve_404(
     respuesta = cliente.post(f"/mantenimientos/999999/tecnicos/{tecnico['id']}")
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe un mantenimiento con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe un mantenimiento con ID 999999."}
 
 
 # --- Listar y consultar ---
+
 
 def test_listar_mantenimientos_incluye_el_creado(
     cliente,
@@ -364,9 +376,7 @@ def test_consultar_mantenimiento_inexistente_devuelve_404(cliente):
     respuesta = cliente.get("/mantenimientos/999999")
 
     assert respuesta.status_code == 404
-    assert respuesta.json() == {
-        "detail": "No existe un mantenimiento con ID 999999."
-    }
+    assert respuesta.json() == {"detail": "No existe un mantenimiento con ID 999999."}
 
 
 def test_listar_mantenimientos_de_equipo_ordenados_por_fecha_descendente(
@@ -377,16 +387,22 @@ def test_listar_mantenimientos_de_equipo_ordenados_por_fecha_descendente(
 ):
     antiguo = crear_mantenimiento_api(fecha="2024-01-10")
     reciente = crear_mantenimiento_api(fecha="2025-06-01")
-    otro_equipo = cliente.post("/equipos", json={
-        "nombre": "Otro equipo",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-    }).json()
-    cliente.post("/mantenimientos", json={
-        "equipo_id": otro_equipo["id"],
-        "fecha": "2025-01-01",
-        "tipo_mantenimiento": "Preventivo",
-    })
+    otro_equipo = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Otro equipo",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+        },
+    ).json()
+    cliente.post(
+        "/mantenimientos",
+        json={
+            "equipo_id": otro_equipo["id"],
+            "fecha": "2025-01-01",
+            "tipo_mantenimiento": "Preventivo",
+        },
+    )
 
     respuesta = cliente.get(f"/equipos/{equipo_prueba['id']}/mantenimientos")
 
@@ -401,6 +417,7 @@ def test_listar_mantenimientos_de_equipo_inexistente_devuelve_404(cliente):
 
 
 # --- Actualizar ---
+
 
 @pytest.mark.parametrize(
     "cambios",
@@ -431,10 +448,13 @@ def test_convertir_preventivo_en_correctivo_indicando_la_falla(
 ):
     original = crear_mantenimiento_api()
 
-    respuesta = cliente.put(f"/mantenimientos/{original['id']}", json={
-        "tipo_mantenimiento": "Correctivo",
-        "falla_id": falla_prueba["id"],
-    })
+    respuesta = cliente.put(
+        f"/mantenimientos/{original['id']}",
+        json={
+            "tipo_mantenimiento": "Correctivo",
+            "falla_id": falla_prueba["id"],
+        },
+    )
 
     assert respuesta.status_code == 200
     assert respuesta.json()["falla_id"] == falla_prueba["id"]
@@ -450,10 +470,13 @@ def test_convertir_correctivo_en_preventivo_quitando_la_falla(
         falla_id=falla_prueba["id"],
     )
 
-    respuesta = cliente.put(f"/mantenimientos/{original['id']}", json={
-        "tipo_mantenimiento": "Preventivo",
-        "falla_id": None,
-    })
+    respuesta = cliente.put(
+        f"/mantenimientos/{original['id']}",
+        json={
+            "tipo_mantenimiento": "Preventivo",
+            "falla_id": None,
+        },
+    )
 
     assert respuesta.status_code == 200
     assert respuesta.json()["falla_id"] is None
@@ -541,10 +564,13 @@ def test_actualizar_mantenimiento_con_falla_inexistente_devuelve_404(
 ):
     original = crear_mantenimiento_api()
 
-    respuesta = cliente.put(f"/mantenimientos/{original['id']}", json={
-        "tipo_mantenimiento": "Correctivo",
-        "falla_id": 999999,
-    })
+    respuesta = cliente.put(
+        f"/mantenimientos/{original['id']}",
+        json={
+            "tipo_mantenimiento": "Correctivo",
+            "falla_id": 999999,
+        },
+    )
 
     assert respuesta.status_code == 404
     assert cliente.get(f"/mantenimientos/{original['id']}").json() == original
@@ -570,9 +596,7 @@ def test_no_se_puede_quitar_el_resultado_de_un_mantenimiento_finalizado(
     assert cliente.get(f"/mantenimientos/{original['id']}").json() == original
 
     # Así tampoco se puede volver a un estado borrable.
-    assert cliente.delete(
-        f"/mantenimientos/{original['id']}"
-    ).status_code == 409
+    assert cliente.delete(f"/mantenimientos/{original['id']}").status_code == 409
 
 
 def test_se_puede_corregir_el_resultado_de_un_mantenimiento_finalizado(
@@ -587,9 +611,7 @@ def test_se_puede_corregir_el_resultado_de_un_mantenimiento_finalizado(
     )
 
     assert respuesta.status_code == 200
-    assert respuesta.json()["resultado"] == (
-        "Equipo operativo, se cambio un filtro."
-    )
+    assert respuesta.json()["resultado"] == ("Equipo operativo, se cambio un filtro.")
 
 
 def test_se_puede_completar_un_mantenimiento_de_equipo_dado_de_baja(
@@ -648,6 +670,7 @@ def test_un_put_parcial_no_revalida_la_relacion_con_la_falla(
 
 # --- Eliminar ---
 
+
 def test_eliminar_mantenimiento_sin_resultado_quita_sus_tecnicos(
     cliente,
     crear_mantenimiento_api,
@@ -655,9 +678,7 @@ def test_eliminar_mantenimiento_sin_resultado_quita_sus_tecnicos(
 ):
     mantenimiento = crear_mantenimiento_api()
     tecnico = crear_tecnico_api()
-    cliente.post(
-        f"/mantenimientos/{mantenimiento['id']}/tecnicos/{tecnico['id']}"
-    )
+    cliente.post(f"/mantenimientos/{mantenimiento['id']}/tecnicos/{tecnico['id']}")
 
     respuesta = cliente.delete(f"/mantenimientos/{mantenimiento['id']}")
 
@@ -686,9 +707,7 @@ def test_eliminar_mantenimiento_con_resultado_devuelve_409(
             "forma parte del historial."
         )
     }
-    assert cliente.get(
-        f"/mantenimientos/{mantenimiento['id']}"
-    ).json() == mantenimiento
+    assert cliente.get(f"/mantenimientos/{mantenimiento['id']}").json() == mantenimiento
 
 
 def test_eliminar_mantenimiento_inexistente_devuelve_404(cliente):

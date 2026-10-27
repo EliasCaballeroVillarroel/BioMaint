@@ -38,9 +38,7 @@ def validar_relacion_con_falla(
         raise NoEncontradoError("una falla", falla_id)
 
     if falla.equipo_id != equipo_id:
-        raise DatosInvalidosError(
-            "La falla no pertenece al equipo del mantenimiento."
-        )
+        raise DatosInvalidosError("La falla no pertenece al equipo del mantenimiento.")
 
     if fecha < falla.fecha_falla:
         raise DatosInvalidosError(
@@ -57,9 +55,7 @@ def obtener_o_fallar(session: Session, modelo, recurso: str, registro_id: int):
     return registro
 
 
-def listar_mantenimientos(
-    session: Session
-) -> list[Mantenimiento]:
+def listar_mantenimientos(session: Session) -> list[Mantenimiento]:
     # La respuesta incluye tecnico_ids: cargarlos en una sola consulta.
     stmt = (
         select(Mantenimiento)
@@ -70,8 +66,7 @@ def listar_mantenimientos(
 
 
 def obtener_mantenimiento(
-    session: Session,
-    mantenimiento_id: int
+    session: Session, mantenimiento_id: int
 ) -> Mantenimiento | None:
     return session.get(Mantenimiento, mantenimiento_id)
 
@@ -84,7 +79,7 @@ def crear_mantenimiento(
     falla_id: int | None = None,
     duracion_mantenimiento: int | None = None,
     descripcion: str | None = None,
-    resultado: str | None = None
+    resultado: str | None = None,
 ) -> Mantenimiento:
     equipo = obtener_o_fallar(session, Equipo, "un equipo", equipo_id)
 
@@ -108,7 +103,7 @@ def crear_mantenimiento(
         tipo_mantenimiento=tipo_mantenimiento,
         duracion_mantenimiento=duracion_mantenimiento,
         descripcion=descripcion,
-        resultado=resultado
+        resultado=resultado,
     )
 
     session.add(mantenimiento)
@@ -128,14 +123,11 @@ def actualizar_mantenimiento(
     duracion_mantenimiento: int | None = None,
     descripcion: str | None = None,
     resultado: str | None = None,
-    campos_enviados: set[str] | None = None
+    campos_enviados: set[str] | None = None,
 ) -> Mantenimiento | None:
     # Se permite aunque el equipo esté dado de baja: la baja impide
     # registrar mantenimientos nuevos, no completar los existentes.
-    mantenimiento = session.get(
-        Mantenimiento,
-        mantenimiento_id
-    )
+    mantenimiento = session.get(Mantenimiento, mantenimiento_id)
 
     if mantenimiento is None:
         return None
@@ -169,6 +161,7 @@ def actualizar_mantenimiento(
     # Validar la relación con la falla solo si cambia, sobre los
     # valores que quedarían después del cambio.
     if campos_enviados & CAMPOS_DE_LA_RELACION:
+
         def final(campo):
             if campo in campos_enviados:
                 return valores[campo]
@@ -192,14 +185,8 @@ def actualizar_mantenimiento(
     return mantenimiento
 
 
-def eliminar_mantenimiento(
-    session: Session,
-    mantenimiento_id: int
-) -> bool:
-    mantenimiento = session.get(
-        Mantenimiento,
-        mantenimiento_id
-    )
+def eliminar_mantenimiento(session: Session, mantenimiento_id: int) -> bool:
+    mantenimiento = session.get(Mantenimiento, mantenimiento_id)
 
     if mantenimiento is None:
         return False
@@ -221,8 +208,7 @@ def eliminar_mantenimiento(
 
 
 def listar_mantenimientos_equipo(
-    session: Session,
-    equipo_id: int
+    session: Session, equipo_id: int
 ) -> list[Mantenimiento] | None:
     if session.get(Equipo, equipo_id) is None:
         return None
@@ -238,9 +224,7 @@ def listar_mantenimientos_equipo(
 
 
 def asignar_tecnico(
-    session: Session,
-    mantenimiento_id: int,
-    tecnico_id: int
+    session: Session, mantenimiento_id: int, tecnico_id: int
 ) -> Mantenimiento:
     mantenimiento = obtener_o_fallar(
         session, Mantenimiento, "un mantenimiento", mantenimiento_id
@@ -260,9 +244,7 @@ def asignar_tecnico(
 
 
 def desasignar_tecnico(
-    session: Session,
-    mantenimiento_id: int,
-    tecnico_id: int
+    session: Session, mantenimiento_id: int, tecnico_id: int
 ) -> Mantenimiento:
     mantenimiento = obtener_o_fallar(
         session, Mantenimiento, "un mantenimiento", mantenimiento_id

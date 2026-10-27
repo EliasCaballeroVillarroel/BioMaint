@@ -6,10 +6,7 @@ from crud.transacciones import confirmar
 from models import Clinica
 
 
-def listar_clinicas(
-    session: Session,
-    incluir_inactivas: bool = False
-) -> list[Clinica]:
+def listar_clinicas(session: Session, incluir_inactivas: bool = False) -> list[Clinica]:
     stmt = select(Clinica).order_by(Clinica.id)
 
     if not incluir_inactivas:
@@ -18,22 +15,14 @@ def listar_clinicas(
     return list(session.scalars(stmt).all())
 
 
-def obtener_clinica(
-    session: Session,
-    clinica_id: int
-) -> Clinica | None:
+def obtener_clinica(session: Session, clinica_id: int) -> Clinica | None:
     return session.get(Clinica, clinica_id)
 
 
 def crear_clinica(
-    session: Session,
-    nombre: str,
-    direccion: str | None = None
+    session: Session, nombre: str, direccion: str | None = None
 ) -> Clinica:
-    clinica = Clinica(
-        nombre=nombre,
-        direccion=direccion
-    )
+    clinica = Clinica(nombre=nombre, direccion=direccion)
 
     session.add(clinica)
 
@@ -47,7 +36,7 @@ def actualizar_clinica(
     session: Session,
     clinica_id: int,
     nombre: str | None = None,
-    direccion: str | None = None
+    direccion: str | None = None,
 ) -> Clinica | None:
     clinica = session.get(Clinica, clinica_id)
 
@@ -55,9 +44,7 @@ def actualizar_clinica(
         return None
 
     if not clinica.activa:
-        raise ConflictoError(
-            "No se puede modificar una clínica dada de baja."
-        )
+        raise ConflictoError("No se puede modificar una clínica dada de baja.")
 
     if nombre is not None:
         clinica.nombre = nombre
@@ -71,10 +58,7 @@ def actualizar_clinica(
     return clinica
 
 
-def eliminar_clinica(
-    session: Session,
-    clinica_id: int
-) -> bool:
+def eliminar_clinica(session: Session, clinica_id: int) -> bool:
     clinica = session.get(Clinica, clinica_id)
 
     if clinica is None:
@@ -96,9 +80,7 @@ def eliminar_clinica(
 
 
 def cambiar_estado_clinica(
-    session: Session,
-    clinica_id: int,
-    activa: bool
+    session: Session, clinica_id: int, activa: bool
 ) -> Clinica | None:
     clinica = session.get(Clinica, clinica_id)
 
@@ -117,24 +99,15 @@ def cambiar_estado_clinica(
     return clinica
 
 
-def dar_de_baja_clinica(
-    session: Session,
-    clinica_id: int
-) -> Clinica | None:
+def dar_de_baja_clinica(session: Session, clinica_id: int) -> Clinica | None:
     return cambiar_estado_clinica(session, clinica_id, activa=False)
 
 
-def reactivar_clinica(
-    session: Session,
-    clinica_id: int
-) -> Clinica | None:
+def reactivar_clinica(session: Session, clinica_id: int) -> Clinica | None:
     return cambiar_estado_clinica(session, clinica_id, activa=True)
 
 
-def listar_ubicaciones_clinica(
-    session: Session,
-    clinica_id: int
-):
+def listar_ubicaciones_clinica(session: Session, clinica_id: int):
     clinica = session.get(Clinica, clinica_id)
 
     if clinica is None:

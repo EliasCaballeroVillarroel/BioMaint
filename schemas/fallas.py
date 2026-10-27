@@ -32,9 +32,7 @@ class FallaCreate(BaseModel):
 
 
 class FallaUpdate(BaseModel):
-    tipo_falla: str | None = Field(
-        default=None, min_length=1, max_length=100
-    )
+    tipo_falla: str | None = Field(default=None, min_length=1, max_length=100)
     descripcion_falla: str | None = None
     fecha_falla: date | None = None
     fecha_resolucion: date | None = None

@@ -1,10 +1,5 @@
-
 from database.db import SessionLocal
-from crud.fallas import (
-    listar_fallas,
-    obtener_falla,
-    listar_fallas_equipo
-)
+from crud.fallas import listar_fallas, obtener_falla, listar_fallas_equipo
 
 
 with SessionLocal() as session:
@@ -39,8 +34,4 @@ with SessionLocal() as session:
         print("No existe el equipo con ID 1")
     else:
         for falla in fallas_equipo:
-            print(
-                f"- {falla.fecha_falla} | "
-                f"{falla.tipo_falla} | "
-                f"{falla.severidad}"
-            )
+            print(f"- {falla.fecha_falla} | {falla.tipo_falla} | {falla.severidad}")

@@ -5,7 +5,6 @@ from models import Clinica, Contrato
 
 
 with SessionLocal() as session:
-
     print("=== CLÍNICAS ===")
 
     stmt_clinicas = select(Clinica)
@@ -16,10 +15,7 @@ with SessionLocal() as session:
         print(f"Dirección: {clinica.direccion}")
 
         for ubicacion in clinica.ubicaciones:
-            print(
-                f"- {ubicacion.servicio} | "
-                f"Sector: {ubicacion.sector}"
-            )
+            print(f"- {ubicacion.servicio} | Sector: {ubicacion.sector}")
 
     print("\n=== CONTRATOS ===")
 

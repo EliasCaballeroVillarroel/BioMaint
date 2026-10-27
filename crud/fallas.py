@@ -13,10 +13,7 @@ def listar_fallas(session: Session) -> list[Falla]:
     return list(session.scalars(stmt).all())
 
 
-def obtener_falla(
-    session: Session,
-    falla_id: int
-) -> Falla | None:
+def obtener_falla(session: Session, falla_id: int) -> Falla | None:
     return session.get(Falla, falla_id)
 
 
@@ -27,7 +24,7 @@ def crear_falla(
     fecha_falla: date,
     descripcion_falla: str | None = None,
     fecha_resolucion: date | None = None,
-    severidad: str | None = None
+    severidad: str | None = None,
 ) -> Falla:
     equipo = session.get(Equipo, equipo_id)
 
@@ -35,9 +32,7 @@ def crear_falla(
         raise NoEncontradoError("un equipo", equipo_id)
 
     if equipo.dado_de_baja:
-        raise ConflictoError(
-            "No se pueden registrar fallas en un equipo dado de baja."
-        )
+        raise ConflictoError("No se pueden registrar fallas en un equipo dado de baja.")
 
     falla = Falla(
         equipo_id=equipo_id,
@@ -45,7 +40,7 @@ def crear_falla(
         fecha_falla=fecha_falla,
         descripcion_falla=descripcion_falla,
         fecha_resolucion=fecha_resolucion,
-        severidad=severidad
+        severidad=severidad,
     )
 
     session.add(falla)
@@ -63,7 +58,7 @@ def actualizar_falla(
     descripcion_falla: str | None = None,
     fecha_falla: date | None = None,
     fecha_resolucion: date | None = None,
-    severidad: str | None = None
+    severidad: str | None = None,
 ) -> Falla | None:
     falla = session.get(Falla, falla_id)
 
@@ -97,8 +92,7 @@ def actualizar_falla(
         for mantenimiento in falla.mantenimientos
     ):
         raise DatosInvalidosError(
-            "La fecha de la falla no puede ser posterior "
-            "a la de sus mantenimientos."
+            "La fecha de la falla no puede ser posterior a la de sus mantenimientos."
         )
 
     if tipo_falla is not None:
@@ -122,10 +116,7 @@ def actualizar_falla(
     return falla
 
 
-def eliminar_falla(
-    session: Session,
-    falla_id: int
-) -> bool:
+def eliminar_falla(session: Session, falla_id: int) -> bool:
     falla = session.get(Falla, falla_id)
 
     if falla is None:
@@ -150,10 +141,7 @@ def eliminar_falla(
     return True
 
 
-def listar_fallas_equipo(
-    session: Session,
-    equipo_id: int
-) -> list[Falla] | None:
+def listar_fallas_equipo(session: Session, equipo_id: int) -> list[Falla] | None:
     equipo = session.get(Equipo, equipo_id)
 
     if equipo is None:

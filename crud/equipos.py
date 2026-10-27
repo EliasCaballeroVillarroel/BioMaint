@@ -11,9 +11,7 @@ class NumeroSerieDuplicadoError(ConflictoError):
 
 
 def verificar_ubicacion_activa(
-    session: Session,
-    ubicacion_id: int,
-    mensaje_inactiva: str
+    session: Session, ubicacion_id: int, mensaje_inactiva: str
 ) -> None:
     ubicacion = session.get(Ubicacion, ubicacion_id)
 
@@ -25,16 +23,12 @@ def verificar_ubicacion_activa(
 
 
 def verificar_numero_serie(
-    session: Session,
-    numero_serie: str | None,
-    equipo_id_excluir: int | None = None
+    session: Session, numero_serie: str | None, equipo_id_excluir: int | None = None
 ) -> None:
     if numero_serie is None:
         return
 
-    stmt = select(Equipo).where(
-        Equipo.numero_serie == numero_serie
-    )
+    stmt = select(Equipo).where(Equipo.numero_serie == numero_serie)
 
     if equipo_id_excluir is not None:
         stmt = stmt.where(Equipo.id != equipo_id_excluir)
@@ -50,18 +44,11 @@ def verificar_numero_serie(
 def listar_equipos(session: Session) -> list[Equipo]:
     # Cargar las ubicaciones en una sola consulta extra, porque la
     # respuesta incluye ubicacion_activa para cada equipo.
-    stmt = (
-        select(Equipo)
-        .options(selectinload(Equipo.ubicacion))
-        .order_by(Equipo.id)
-    )
+    stmt = select(Equipo).options(selectinload(Equipo.ubicacion)).order_by(Equipo.id)
     return list(session.scalars(stmt).all())
 
 
-def obtener_equipo(
-    session: Session,
-    equipo_id: int
-) -> Equipo | None:
+def obtener_equipo(session: Session, equipo_id: int) -> Equipo | None:
     return session.get(Equipo, equipo_id)
 
 
@@ -73,12 +60,12 @@ def crear_equipo(
     tipo: str | None = None,
     modelo: str | None = None,
     marca: str | None = None,
-    numero_serie: str | None = None
+    numero_serie: str | None = None,
 ) -> Equipo:
     verificar_ubicacion_activa(
         session,
         ubicacion_id,
-        "No se pueden crear equipos en una ubicación dada de baja."
+        "No se pueden crear equipos en una ubicación dada de baja.",
     )
     verificar_numero_serie(session, numero_serie)
 
@@ -89,7 +76,7 @@ def crear_equipo(
         tipo=tipo,
         modelo=modelo,
         marca=marca,
-        numero_serie=numero_serie
+        numero_serie=numero_serie,
     )
 
     session.add(equipo)
@@ -108,7 +95,7 @@ def actualizar_equipo(
     modelo: str | None = None,
     marca: str | None = None,
     numero_serie: str | None = None,
-    ubicacion_id: int | None = None
+    ubicacion_id: int | None = None,
 ) -> Equipo | None:
     equipo = session.get(Equipo, equipo_id)
 
@@ -116,9 +103,7 @@ def actualizar_equipo(
         return None
 
     if equipo.dado_de_baja:
-        raise ConflictoError(
-            "No se puede modificar un equipo que está dado de baja."
-        )
+        raise ConflictoError("No se puede modificar un equipo que está dado de baja.")
 
     # Solo se valida un traslado real: un equipo en una ubicación
     # dada de baja puede seguir actualizándose sin moverse.
@@ -126,14 +111,10 @@ def actualizar_equipo(
         verificar_ubicacion_activa(
             session,
             ubicacion_id,
-            "No se puede mover un equipo a una ubicación dada de baja."
+            "No se puede mover un equipo a una ubicación dada de baja.",
         )
 
-    verificar_numero_serie(
-        session,
-        numero_serie,
-        equipo_id_excluir=equipo_id
-    )
+    verificar_numero_serie(session, numero_serie, equipo_id_excluir=equipo_id)
 
     if nombre is not None:
         equipo.nombre = nombre
@@ -162,10 +143,7 @@ def actualizar_equipo(
     return equipo
 
 
-def eliminar_equipo(
-    session: Session,
-    equipo_id: int
-) -> bool:
+def eliminar_equipo(session: Session, equipo_id: int) -> bool:
     equipo = session.get(Equipo, equipo_id)
 
     if equipo is None:
@@ -174,8 +152,7 @@ def eliminar_equipo(
     # Un equipo dado de baja se conserva por su historial.
     if equipo.dado_de_baja:
         raise ConflictoError(
-            "No se puede eliminar un equipo dado de baja: "
-            "se conserva por su historial."
+            "No se puede eliminar un equipo dado de baja: se conserva por su historial."
         )
 
     session.delete(equipo)

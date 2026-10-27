@@ -13,10 +13,7 @@ def listar_contratos(session: Session) -> list[Contrato]:
     return list(session.scalars(stmt).all())
 
 
-def obtener_contrato(
-    session: Session,
-    contrato_id: int
-) -> Contrato | None:
+def obtener_contrato(session: Session, contrato_id: int) -> Contrato | None:
     return session.get(Contrato, contrato_id)
 
 
@@ -26,7 +23,7 @@ def crear_contrato(
     tipo_contrato: str,
     fecha_inicio: date,
     empresa: str | None = None,
-    fecha_fin: date | None = None
+    fecha_fin: date | None = None,
 ) -> Contrato:
     equipo = session.get(Equipo, equipo_id)
 
@@ -48,7 +45,7 @@ def crear_contrato(
         tipo_contrato=tipo_contrato,
         empresa=empresa,
         fecha_inicio=fecha_inicio,
-        fecha_fin=fecha_fin
+        fecha_fin=fecha_fin,
     )
 
     session.add(contrato)
@@ -103,9 +100,7 @@ def actualizar_contrato(
     )
 
     nueva_fecha_fin = (
-        valores["fecha_fin"]
-        if "fecha_fin" in campos_enviados
-        else contrato.fecha_fin
+        valores["fecha_fin"] if "fecha_fin" in campos_enviados else contrato.fecha_fin
     )
 
     if nueva_fecha_inicio is None:
@@ -121,10 +116,7 @@ def actualizar_contrato(
             "No se puede cambiar la fecha de inicio de un contrato que ya comenzó."
         )
 
-    if (
-        nueva_fecha_fin is not None
-        and nueva_fecha_fin < nueva_fecha_inicio
-    ):
+    if nueva_fecha_fin is not None and nueva_fecha_fin < nueva_fecha_inicio:
         raise DatosInvalidosError(
             "La fecha de fin no puede ser anterior a la fecha de inicio."
         )
@@ -142,10 +134,7 @@ def actualizar_contrato(
     return contrato
 
 
-def eliminar_contrato(
-    session: Session,
-    contrato_id: int
-) -> bool:
+def eliminar_contrato(session: Session, contrato_id: int) -> bool:
     contrato = session.get(Contrato, contrato_id)
 
     if contrato is None:
@@ -166,10 +155,7 @@ def eliminar_contrato(
     return True
 
 
-def cancelar_contrato(
-    session: Session,
-    contrato_id: int
-) -> Contrato | None:
+def cancelar_contrato(session: Session, contrato_id: int) -> Contrato | None:
     contrato = session.get(Contrato, contrato_id)
 
     if contrato is None:
@@ -183,10 +169,7 @@ def cancelar_contrato(
     return contrato
 
 
-def listar_contratos_equipo(
-    session: Session,
-    equipo_id: int
-) -> list[Contrato] | None:
+def listar_contratos_equipo(session: Session, equipo_id: int) -> list[Contrato] | None:
     equipo = session.get(Equipo, equipo_id)
 
     if equipo is None:

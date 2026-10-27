@@ -11,24 +11,14 @@ def listar_tecnicos(session: Session) -> list[Tecnico]:
     return list(session.scalars(stmt).all())
 
 
-def obtener_tecnico(
-    session: Session,
-    tecnico_id: int
-) -> Tecnico | None:
+def obtener_tecnico(session: Session, tecnico_id: int) -> Tecnico | None:
     return session.get(Tecnico, tecnico_id)
 
 
 def crear_tecnico(
-    session: Session,
-    nombre: str,
-    apellido: str,
-    empresa: str | None = None
+    session: Session, nombre: str, apellido: str, empresa: str | None = None
 ) -> Tecnico:
-    tecnico = Tecnico(
-        nombre=nombre,
-        apellido=apellido,
-        empresa=empresa
-    )
+    tecnico = Tecnico(nombre=nombre, apellido=apellido, empresa=empresa)
 
     session.add(tecnico)
 
@@ -43,7 +33,7 @@ def actualizar_tecnico(
     tecnico_id: int,
     nombre: str | None = None,
     apellido: str | None = None,
-    empresa: str | None = None
+    empresa: str | None = None,
 ) -> Tecnico | None:
     tecnico = session.get(Tecnico, tecnico_id)
 
@@ -65,10 +55,7 @@ def actualizar_tecnico(
     return tecnico
 
 
-def eliminar_tecnico(
-    session: Session,
-    tecnico_id: int
-) -> bool:
+def eliminar_tecnico(session: Session, tecnico_id: int) -> bool:
     tecnico = session.get(Tecnico, tecnico_id)
 
     if tecnico is None:
@@ -86,10 +73,7 @@ def eliminar_tecnico(
     return True
 
 
-def listar_mantenimientos_tecnico(
-    session: Session,
-    tecnico_id: int
-):
+def listar_mantenimientos_tecnico(session: Session, tecnico_id: int):
     tecnico = session.get(Tecnico, tecnico_id)
 
     if tecnico is None:

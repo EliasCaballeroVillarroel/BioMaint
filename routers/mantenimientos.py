@@ -22,24 +22,13 @@ from routers.errores import no_existe, sin_campos_para_actualizar
 router = APIRouter(tags=["Mantenimientos"])
 
 
-@router.get(
-    "/mantenimientos",
-    response_model=list[MantenimientoResponse]
-)
-def listar(
-    session: Session = Depends(obtener_sesion)
-):
+@router.get("/mantenimientos", response_model=list[MantenimientoResponse])
+def listar(session: Session = Depends(obtener_sesion)):
     return listar_mantenimientos(session)
 
 
-@router.get(
-    "/mantenimientos/{mantenimiento_id}",
-    response_model=MantenimientoResponse
-)
-def obtener(
-    mantenimiento_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+@router.get("/mantenimientos/{mantenimiento_id}", response_model=MantenimientoResponse)
+def obtener(mantenimiento_id: int, session: Session = Depends(obtener_sesion)):
     mantenimiento = obtener_mantenimiento(session, mantenimiento_id)
 
     if mantenimiento is None:
@@ -51,12 +40,9 @@ def obtener(
 @router.post(
     "/mantenimientos",
     response_model=MantenimientoResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
-def crear(
-    datos: MantenimientoCreate,
-    session: Session = Depends(obtener_sesion)
-):
+def crear(datos: MantenimientoCreate, session: Session = Depends(obtener_sesion)):
     return crear_mantenimiento(
         session=session,
         equipo_id=datos.equipo_id,
@@ -69,14 +55,11 @@ def crear(
     )
 
 
-@router.put(
-    "/mantenimientos/{mantenimiento_id}",
-    response_model=MantenimientoResponse
-)
+@router.put("/mantenimientos/{mantenimiento_id}", response_model=MantenimientoResponse)
 def actualizar(
     mantenimiento_id: int,
     datos: MantenimientoUpdate,
-    session: Session = Depends(obtener_sesion)
+    session: Session = Depends(obtener_sesion),
 ):
     cambios = datos.model_dump(exclude_unset=True)
 
@@ -98,13 +81,9 @@ def actualizar(
 
 
 @router.delete(
-    "/mantenimientos/{mantenimiento_id}",
-    status_code=status.HTTP_204_NO_CONTENT
+    "/mantenimientos/{mantenimiento_id}", status_code=status.HTTP_204_NO_CONTENT
 )
-def eliminar(
-    mantenimiento_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+def eliminar(mantenimiento_id: int, session: Session = Depends(obtener_sesion)):
     if not eliminar_mantenimiento(session, mantenimiento_id):
         raise no_existe("un mantenimiento", mantenimiento_id)
 
@@ -112,13 +91,9 @@ def eliminar(
 
 
 @router.get(
-    "/equipos/{equipo_id}/mantenimientos",
-    response_model=list[MantenimientoResponse]
+    "/equipos/{equipo_id}/mantenimientos", response_model=list[MantenimientoResponse]
 )
-def listar_por_equipo(
-    equipo_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+def listar_por_equipo(equipo_id: int, session: Session = Depends(obtener_sesion)):
     mantenimientos = listar_mantenimientos_equipo(session, equipo_id)
 
     if mantenimientos is None:
@@ -129,23 +104,19 @@ def listar_por_equipo(
 
 @router.post(
     "/mantenimientos/{mantenimiento_id}/tecnicos/{tecnico_id}",
-    response_model=MantenimientoResponse
+    response_model=MantenimientoResponse,
 )
 def asignar(
-    mantenimiento_id: int,
-    tecnico_id: int,
-    session: Session = Depends(obtener_sesion)
+    mantenimiento_id: int, tecnico_id: int, session: Session = Depends(obtener_sesion)
 ):
     return asignar_tecnico(session, mantenimiento_id, tecnico_id)
 
 
 @router.delete(
     "/mantenimientos/{mantenimiento_id}/tecnicos/{tecnico_id}",
-    response_model=MantenimientoResponse
+    response_model=MantenimientoResponse,
 )
 def desasignar(
-    mantenimiento_id: int,
-    tecnico_id: int,
-    session: Session = Depends(obtener_sesion)
+    mantenimiento_id: int, tecnico_id: int, session: Session = Depends(obtener_sesion)
 ):
     return desasignar_tecnico(session, mantenimiento_id, tecnico_id)

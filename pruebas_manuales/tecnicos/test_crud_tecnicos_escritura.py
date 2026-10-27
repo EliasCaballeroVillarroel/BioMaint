@@ -1,10 +1,5 @@
-
 from database.db import SessionLocal
-from crud.tecnicos import (
-    crear_tecnico,
-    actualizar_tecnico,
-    eliminar_tecnico
-)
+from crud.tecnicos import crear_tecnico, actualizar_tecnico, eliminar_tecnico
 
 with SessionLocal() as session:
     tecnico_id = None
@@ -15,7 +10,7 @@ with SessionLocal() as session:
             session=session,
             nombre="TECNICO",
             apellido="PRUEBA CRUD",
-            empresa="Empresa de prueba"
+            empresa="Empresa de prueba",
         )
 
         tecnico_id = tecnico.id
@@ -31,7 +26,7 @@ with SessionLocal() as session:
             session=session,
             tecnico_id=tecnico_id,
             nombre="TECNICO ACTUALIZADO",
-            empresa="Empresa actualizada"
+            empresa="Empresa actualizada",
         )
 
         print("\n=== TÉCNICO ACTUALIZADO ===")

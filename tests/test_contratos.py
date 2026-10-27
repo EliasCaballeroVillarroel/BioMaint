@@ -25,13 +25,16 @@ CAMPOS_CONTRATO = {
 def crear_contrato_api(cliente, equipo_prueba):
     # Por defecto, un contrato activo: empezó hace un mes y vence en un año.
     def crear(**datos):
-        respuesta = cliente.post("/contratos", json={
-            "equipo_id": equipo_prueba["id"],
-            "tipo_contrato": "Mantenimiento integral",
-            "fecha_inicio": dias(-30),
-            "fecha_fin": dias(365),
-            **datos,
-        })
+        respuesta = cliente.post(
+            "/contratos",
+            json={
+                "equipo_id": equipo_prueba["id"],
+                "tipo_contrato": "Mantenimiento integral",
+                "fecha_inicio": dias(-30),
+                "fecha_fin": dias(365),
+                **datos,
+            },
+        )
         assert respuesta.status_code == 201, respuesta.json()
         return respuesta.json()
 
@@ -39,6 +42,7 @@ def crear_contrato_api(cliente, equipo_prueba):
 
 
 # --- Creación y consulta ---
+
 
 def test_crear_contrato_valido_devuelve_formato_esperado(
     cliente,
@@ -68,11 +72,14 @@ def test_el_estado_enviado_se_ignora(crear_contrato_api):
 
 
 def test_crear_contrato_con_equipo_inexistente_devuelve_404(cliente):
-    respuesta = cliente.post("/contratos", json={
-        "equipo_id": 999999,
-        "tipo_contrato": "Preventivo",
-        "fecha_inicio": dias(-1),
-    })
+    respuesta = cliente.post(
+        "/contratos",
+        json={
+            "equipo_id": 999999,
+            "tipo_contrato": "Preventivo",
+            "fecha_inicio": dias(-1),
+        },
+    )
 
     assert respuesta.status_code == 404
     assert respuesta.json() == {"detail": "No existe un equipo con ID 999999."}
@@ -84,11 +91,14 @@ def test_crear_contrato_en_equipo_dado_de_baja_devuelve_409(
 ):
     cliente.post(f"/equipos/{equipo_prueba['id']}/baja")
 
-    respuesta = cliente.post("/contratos", json={
-        "equipo_id": equipo_prueba["id"],
-        "tipo_contrato": "Preventivo",
-        "fecha_inicio": dias(-1),
-    })
+    respuesta = cliente.post(
+        "/contratos",
+        json={
+            "equipo_id": equipo_prueba["id"],
+            "tipo_contrato": "Preventivo",
+            "fecha_inicio": dias(-1),
+        },
+    )
 
     assert respuesta.status_code == 409
     assert respuesta.json() == {
@@ -122,9 +132,7 @@ def test_crear_contrato_con_datos_invalidos_devuelve_422(
     respuesta = cliente.post("/contratos", json=datos)
 
     assert respuesta.status_code == 422
-    assert cliente.get(
-        f"/equipos/{equipo_prueba['id']}/contratos"
-    ).json() == []
+    assert cliente.get(f"/equipos/{equipo_prueba['id']}/contratos").json() == []
 
 
 def test_listar_contratos_incluye_el_creado(cliente, crear_contrato_api):
@@ -163,6 +171,7 @@ def test_consultar_contrato_inexistente_devuelve_404(cliente):
 
 
 # --- Fechas de vigencia ---
+
 
 @pytest.mark.parametrize(
     ("inicio", "fin", "estado"),
@@ -204,6 +213,7 @@ def test_cambiar_fechas_recalcula_el_estado(cliente, crear_contrato_api):
 
 # --- Equipos y relaciones ---
 
+
 def test_listar_contratos_de_equipo_ordenados_por_inicio_descendente(
     cliente,
     equipo_prueba,
@@ -212,16 +222,22 @@ def test_listar_contratos_de_equipo_ordenados_por_inicio_descendente(
 ):
     antiguo = crear_contrato_api(fecha_inicio=dias(-800), fecha_fin=dias(-400))
     vigente = crear_contrato_api(fecha_inicio=dias(-399), fecha_fin=dias(300))
-    otro_equipo = cliente.post("/equipos", json={
-        "nombre": "Otro equipo",
-        "ubicacion_id": ubicacion_prueba,
-        "estado_actual": "activo",
-    }).json()
-    cliente.post("/contratos", json={
-        "equipo_id": otro_equipo["id"],
-        "tipo_contrato": "Ajeno",
-        "fecha_inicio": dias(-5),
-    })
+    otro_equipo = cliente.post(
+        "/equipos",
+        json={
+            "nombre": "Otro equipo",
+            "ubicacion_id": ubicacion_prueba,
+            "estado_actual": "activo",
+        },
+    ).json()
+    cliente.post(
+        "/contratos",
+        json={
+            "equipo_id": otro_equipo["id"],
+            "tipo_contrato": "Ajeno",
+            "fecha_inicio": dias(-5),
+        },
+    )
 
     respuesta = cliente.get(f"/equipos/{equipo_prueba['id']}/contratos")
 
@@ -246,6 +262,7 @@ def test_listar_contratos_de_equipo_inexistente_devuelve_404(cliente):
 
 
 # --- Actualizar ---
+
 
 @pytest.mark.parametrize(
     "cambios",
@@ -361,6 +378,7 @@ def test_inicio_de_contrato_pendiente_no_puede_quedar_despues_del_fin(
 
 # --- Cancelar ---
 
+
 def test_cancelar_contrato(cliente, crear_contrato_api):
     contrato = crear_contrato_api()
 
@@ -368,9 +386,7 @@ def test_cancelar_contrato(cliente, crear_contrato_api):
 
     assert respuesta.status_code == 200
     assert respuesta.json() == {**contrato, "estado": "Cancelado"}
-    assert cliente.get(f"/contratos/{contrato['id']}").json()["estado"] == (
-        "Cancelado"
-    )
+    assert cliente.get(f"/contratos/{contrato['id']}").json()["estado"] == ("Cancelado")
 
 
 def test_cancelar_contrato_dos_veces_es_idempotente(cliente, crear_contrato_api):
@@ -406,6 +422,7 @@ def test_actualizar_contrato_cancelado_devuelve_409(cliente, crear_contrato_api)
 
 
 # --- Eliminar e integridad ---
+
 
 def test_eliminar_contrato_que_no_comenzo(cliente, crear_contrato_api):
     contrato = crear_contrato_api(fecha_inicio=dias(10), fecha_fin=dias(100))

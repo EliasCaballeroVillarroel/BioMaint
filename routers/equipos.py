@@ -22,17 +22,12 @@ router = APIRouter(tags=["Equipos"])
 
 
 @router.get("/equipos", response_model=list[EquipoResponse])
-def listar_equipos_api(
-    session: Session = Depends(obtener_sesion)
-):
+def listar_equipos_api(session: Session = Depends(obtener_sesion)):
     return listar_equipos(session)
 
 
 @router.get("/equipos/{equipo_id}", response_model=EquipoResponse)
-def obtener_equipo_api(
-    equipo_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+def obtener_equipo_api(equipo_id: int, session: Session = Depends(obtener_sesion)):
     equipo = obtener_equipo(session, equipo_id)
 
     if equipo is None:
@@ -41,15 +36,8 @@ def obtener_equipo_api(
     return equipo
 
 
-@router.post(
-    "/equipos",
-    response_model=EquipoResponse,
-    status_code=201
-)
-def crear_equipo_api(
-    datos: EquipoCreate,
-    session: Session = Depends(obtener_sesion)
-):
+@router.post("/equipos", response_model=EquipoResponse, status_code=201)
+def crear_equipo_api(datos: EquipoCreate, session: Session = Depends(obtener_sesion)):
     return crear_equipo(
         session,
         nombre=datos.nombre,
@@ -58,18 +46,13 @@ def crear_equipo_api(
         tipo=datos.tipo,
         modelo=datos.modelo,
         marca=datos.marca,
-        numero_serie=datos.numero_serie
+        numero_serie=datos.numero_serie,
     )
 
 
-@router.put(
-    "/equipos/{equipo_id}",
-    response_model=EquipoResponse
-)
+@router.put("/equipos/{equipo_id}", response_model=EquipoResponse)
 def actualizar_equipo_api(
-    equipo_id: int,
-    datos: EquipoUpdate,
-    session: Session = Depends(obtener_sesion)
+    equipo_id: int, datos: EquipoUpdate, session: Session = Depends(obtener_sesion)
 ):
     cambios = datos.model_dump(exclude_unset=True)
 
@@ -89,16 +72,11 @@ def actualizar_equipo_api(
 
 
 @router.delete("/equipos/{equipo_id}")
-def eliminar_equipo_api(
-    equipo_id: int,
-    session: Session = Depends(obtener_sesion)
-):
+def eliminar_equipo_api(equipo_id: int, session: Session = Depends(obtener_sesion)):
     if not eliminar_equipo(session, equipo_id):
         raise no_existe("un equipo", equipo_id)
 
-    return {
-        "mensaje": f"El equipo con ID {equipo_id} fue eliminado correctamente."
-    }
+    return {"mensaje": f"El equipo con ID {equipo_id} fue eliminado correctamente."}
 
 
 @router.post(

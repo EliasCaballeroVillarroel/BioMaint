@@ -1,4 +1,3 @@
-
 from datetime import date
 
 from database.db import SessionLocal
@@ -6,7 +5,7 @@ from crud.mantenimientos import (
     crear_mantenimiento,
     actualizar_mantenimiento,
     obtener_mantenimiento,
-    asignar_tecnico
+    asignar_tecnico,
 )
 
 
@@ -18,7 +17,7 @@ with SessionLocal() as session:
         tipo_mantenimiento="PREVENTIVO",
         descripcion="Mantenimiento de prueba CRUD",
         duracion_mantenimiento=30,
-        resultado="Prueba inicial"
+        resultado="Prueba inicial",
     )
 
     mantenimiento_id = mantenimiento.id
@@ -33,7 +32,7 @@ with SessionLocal() as session:
         session=session,
         mantenimiento_id=mantenimiento_id,
         descripcion="Descripción actualizada de prueba",
-        duracion_mantenimiento=45
+        duracion_mantenimiento=45,
     )
 
     print("\n=== MANTENIMIENTO ACTUALIZADO ===")
@@ -42,21 +41,13 @@ with SessionLocal() as session:
         print(f"Descripción: {actualizado.descripcion}")
         print(f"Duración: {actualizado.duracion_mantenimiento} minutos")
 
-    verificado = obtener_mantenimiento(
-        session,
-        mantenimiento_id
-    )
+    verificado = obtener_mantenimiento(session, mantenimiento_id)
 
-    print(
-        "\n¿Existe en la base de datos?",
-        verificado is not None
-    )
+    print("\n¿Existe en la base de datos?", verificado is not None)
 
     # Usamos el técnico con ID 1, que debe existir.
     asignado = asignar_tecnico(
-        session=session,
-        mantenimiento_id=mantenimiento_id,
-        tecnico_id=1
+        session=session, mantenimiento_id=mantenimiento_id, tecnico_id=1
     )
 
     print("\n=== TÉCNICOS ASIGNADOS ===")

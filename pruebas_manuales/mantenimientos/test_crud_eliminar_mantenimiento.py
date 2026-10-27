@@ -1,4 +1,3 @@
-
 from database.db import SessionLocal
 from crud.mantenimientos import eliminar_mantenimiento
 
@@ -8,8 +7,5 @@ with SessionLocal() as session:
     if ID_MANTENIMIENTO_PRUEBA == 0:
         print("Ingresá el ID real del mantenimiento de prueba.")
     else:
-        eliminado = eliminar_mantenimiento(
-            session,
-            ID_MANTENIMIENTO_PRUEBA
-        )
+        eliminado = eliminar_mantenimiento(session, ID_MANTENIMIENTO_PRUEBA)
         print("¿Se eliminó?", eliminado)

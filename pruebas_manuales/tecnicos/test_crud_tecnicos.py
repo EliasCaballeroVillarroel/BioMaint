@@ -1,9 +1,8 @@
-
 from database.db import SessionLocal
 from crud.tecnicos import (
     listar_tecnicos,
     obtener_tecnico,
-    listar_mantenimientos_tecnico
+    listar_mantenimientos_tecnico,
 )
 
 
@@ -28,10 +27,7 @@ with SessionLocal() as session:
     else:
         print(f"Encontrado: {tecnico.nombre} {tecnico.apellido}")
 
-        mantenimientos = listar_mantenimientos_tecnico(
-            session,
-            tecnico.id
-        )
+        mantenimientos = listar_mantenimientos_tecnico(session, tecnico.id)
 
         print("\nMantenimientos asociados:")
 

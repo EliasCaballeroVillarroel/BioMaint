@@ -21,7 +21,6 @@ from routers.errores import no_existe, sin_campos_para_actualizar
 router = APIRouter(tags=["Clínicas"])
 
 
-
 @router.get("/clinicas", response_model=list[ClinicaResponse])
 def listar(
     incluir_inactivas: bool = False,
@@ -92,9 +91,7 @@ def eliminar(
     if not eliminada:
         raise no_existe("una clínica", clinica_id)
 
-    return {
-        "mensaje": f"La clínica con ID {clinica_id} fue eliminada correctamente."
-    }
+    return {"mensaje": f"La clínica con ID {clinica_id} fue eliminada correctamente."}
 
 
 @router.post(
