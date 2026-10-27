@@ -37,14 +37,22 @@ ARCHIVO_LLENADO = (
 NORMALIZACIONES = [
     "UPDATE equipos SET estado_actual = 'activo' WHERE estado_actual = 'ACTIVO'",
     "UPDATE equipos SET estado_actual = 'inactivo' WHERE estado_actual = 'INACTIVO'",
-    ("UPDATE equipos SET estado_actual = 'mantenimiento' "
-    "WHERE estado_actual = 'EN_MANTENIMIENTO'"),
-    ("UPDATE mantenimientos SET tipo_mantenimiento = 'Preventivo' "
-    "WHERE tipo_mantenimiento = 'PREVENTIVO'"),
-    ("UPDATE mantenimientos SET tipo_mantenimiento = 'Predictivo' "
-    "WHERE tipo_mantenimiento = 'PREDICTIVO'"),
-    ("UPDATE mantenimientos SET tipo_mantenimiento = 'Correctivo' "
-    "WHERE tipo_mantenimiento = 'CORRECTIVO'"),
+    (
+        "UPDATE equipos SET estado_actual = 'mantenimiento' "
+        "WHERE estado_actual = 'EN_MANTENIMIENTO'"
+    ),
+    (
+        "UPDATE mantenimientos SET tipo_mantenimiento = 'Preventivo' "
+        "WHERE tipo_mantenimiento = 'PREVENTIVO'"
+    ),
+    (
+        "UPDATE mantenimientos SET tipo_mantenimiento = 'Predictivo' "
+        "WHERE tipo_mantenimiento = 'PREDICTIVO'"
+    ),
+    (
+        "UPDATE mantenimientos SET tipo_mantenimiento = 'Correctivo' "
+        "WHERE tipo_mantenimiento = 'CORRECTIVO'"
+    ),
     # Mismas sentencias que la migración 9dde320bbb20 (se copian en vez
     # de importarse: una migración es una foto fija y no debe cambiar).
     "UPDATE fallas SET severidad = LOWER(TRIM(severidad)) WHERE severidad IS NOT NULL",

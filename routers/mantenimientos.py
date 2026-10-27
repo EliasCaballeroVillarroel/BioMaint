@@ -88,7 +88,6 @@ def eliminar(mantenimiento_id: int, session: Session = Depends(obtener_sesion)):
         raise no_existe("un mantenimiento", mantenimiento_id)
 
 
-
 @router.get(
     "/equipos/{equipo_id}/mantenimientos", response_model=list[MantenimientoResponse]
 )

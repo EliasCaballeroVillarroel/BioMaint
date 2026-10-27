@@ -77,7 +77,6 @@ def eliminar(tecnico_id: int, session: Session = Depends(obtener_sesion)):
         raise no_existe("un técnico", tecnico_id)
 
 
-
 @router.get(
     "/tecnicos/{tecnico_id}/mantenimientos", response_model=list[MantenimientoResponse]
 )

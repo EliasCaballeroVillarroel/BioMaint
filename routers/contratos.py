@@ -79,7 +79,6 @@ def eliminar(contrato_id: int, session: Session = Depends(obtener_sesion)):
         raise no_existe("un contrato", contrato_id)
 
 
-
 @router.post("/contratos/{contrato_id}/cancelar", response_model=ContratoResponse)
 def cancelar(contrato_id: int, session: Session = Depends(obtener_sesion)):
     contrato = cancelar_contrato(session, contrato_id)

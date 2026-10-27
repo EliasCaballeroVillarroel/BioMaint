@@ -39,9 +39,7 @@ class Equipo(Base):  # Creamos una clase que va representar a equipos
 
     ubicacion: Mapped[Ubicacion] = relationship(back_populates="equipos")
     fallas: Mapped[list[Falla]] = relationship(back_populates="equipo")
-    mantenimientos: Mapped[list[Mantenimiento]] = relationship(
-        back_populates="equipo"
-    )
+    mantenimientos: Mapped[list[Mantenimiento]] = relationship(back_populates="equipo")
     contratos: Mapped[list[Contrato]] = relationship(back_populates="equipo")
 
     @property
