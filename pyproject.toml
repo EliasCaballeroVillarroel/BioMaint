@@ -19,6 +19,7 @@ dev = [
     "pytest>=9.1.1",
     "httpx>=0.28.1",
     "ruff>=0.17.3",
+    "mypy>=2.4.0",
 ]
 
 [tool.pytest.ini_options]
@@ -28,3 +29,6 @@ pythonpath = ["."]
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.mypy]
+files = ["main.py", "routers", "crud", "models", "schemas", "database"]
