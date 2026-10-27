@@ -2,7 +2,13 @@ from __future__ import annotations
 from sqlalchemy import String, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.base import Base
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from models.fallas import Falla
+    from models.ubicaciones import Ubicacion
+    from models.contratos import Contrato
+    from models.mantenimientos import Mantenimiento
 
 class Equipo(Base): #Creamos una clase que va representar a equipos 
     __tablename__ = "equipos" #Definimos la tabla a representar 

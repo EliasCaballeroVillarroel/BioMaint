@@ -6,7 +6,10 @@ from sqlalchemy import Boolean, Date, ForeignKey, String, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from models.equipos import Equipo
 
 class Contrato(Base):
     __tablename__ = "contratos"

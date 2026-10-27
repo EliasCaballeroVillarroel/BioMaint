@@ -6,7 +6,12 @@ from sqlalchemy import Date, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from models.tecnicos import Tecnico
+    from models.equipos import Equipo
+    from models.fallas import Falla
 
 class Mantenimiento(Base):
     __tablename__ = "mantenimientos"

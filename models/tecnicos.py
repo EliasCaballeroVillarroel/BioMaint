@@ -4,7 +4,10 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from models.mantenimientos import Mantenimiento
 
 class Tecnico(Base):
     __tablename__ = "tecnicos"
